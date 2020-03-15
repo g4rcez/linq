@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "ESNext"
+    ],
+    "incremental": true,
+    "downlevelIteration": true,
+    "declarationMap": true,
+    "declarationDir": "./build",
+    "rootDir": "./src",
+    "outDir": "./build",
+    "target": "ES3",
+    "declaration": true,
+    "composite": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": false,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "files": [
+    "src/index.ts"
+  ],
+  "include": [
+    "src/"
+  ]
+}
