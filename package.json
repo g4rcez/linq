@@ -13,7 +13,8 @@
   },
   "author": "Allan Garcez <allan.f.garcez@gmail.com> (https://github.com/g4rcez)",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "bili": "^4.8.1",

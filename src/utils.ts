@@ -45,3 +45,13 @@ export const getKey = <T>(obj: any, key?: any): T => {
 };
 
 export const sortBy = (key: string) => (a: ObjectMap, b: ObjectMap) => (a[key] > b[key] ? 1 : b[key] > a[key] ? -1 : 0);
+
+export const genCharArray = (charA: string, charZ: string) => {
+	const a = [];
+	let i = charA.charCodeAt(0);
+	const j = charZ.charCodeAt(0);
+	for (; i <= j; ++i) {
+		a.push(String.fromCharCode(i));
+	}
+	return a;
+};

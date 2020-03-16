@@ -1,6 +1,18 @@
-import { ArrayCallback, ArrayCallbackAssertion, Grouped, Reducer, SymbolMap, Symbols } from "./typing";
-import { curry, Equals, getKey, sortBy, spreadData } from "./utils";
-export { Sorts } from "./sort";
+import {
+	AggregateType,
+	OrderKeys,
+	ArrayCallback,
+	ArrayCallbackAssertion,
+	ChunkType,
+	EveryType,
+	Grouped,
+	RangeType,
+	ReduceType,
+	SymbolMap,
+	Symbols,
+} from "./typing";
+import { curry, Equals, getKey, sortBy, spreadData, genCharArray } from "./utils";
+export * from "./sort";
 
 const symbolMap: SymbolMap<any, any> = {
 	"!=": (value, compare) => value != compare,
@@ -27,15 +39,17 @@ export default class Linq<Type> {
 		return new Linq<T>(array);
 	}
 
-	public static Aggregate<T>(
-		firstValue: T,
-		fn: (next: T, accumulator: T) => T,
-		array: T[],
-		transform: (val: T) => unknown = (v: unknown) => v,
-	) {
-		const val = Linq.Reduce(fn, firstValue, array);
-		return transform(val);
-	}
+	public static Aggregate = curry(
+		<T>(
+			firstValue: T,
+			fn: (next: T, accumulator: T) => T,
+			array: T[],
+			transform: (val: T) => unknown = (v: unknown) => v,
+		) => {
+			const val = Linq.Reduce(fn, firstValue, array);
+			return transform(val) as any;
+		},
+	) as AggregateType;
 
 	public static Map: (<T>(callback: ArrayCallback<T>) => (array: T[]) => any[]) &
 		(<T>(callback: ArrayCallback<T>, array: T[]) => never[]) = curry(
@@ -113,8 +127,7 @@ export default class Linq<Type> {
 		},
 	) as any;
 
-	public static Every: (<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => boolean) &
-		(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>) => (array: GENERICS[]) => boolean) = curry(
+	public static Every: EveryType = curry(
 		<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
 			for (let index = 0; index < array.length; index++) {
 				const includes = callback(array[index] as GENERICS, index, array);
@@ -144,17 +157,7 @@ export default class Linq<Type> {
 		},
 	) as any;
 
-	public static Reduce: (<GENERICS, Initial>(
-		callback: Reducer<Initial, GENERICS>,
-		initial: Initial,
-		array: GENERICS[],
-	) => Initial) &
-		(<GENERICS, Initial>(
-			callback: Reducer<Initial, GENERICS>,
-		) => (initial: Initial, array: GENERICS[]) => Initial) &
-		(<GENERICS, Initial>(
-			callback: Reducer<Initial, GENERICS>,
-		) => (initial: Initial) => (array: GENERICS[]) => Initial) = curry(
+	public static Reduce: ReduceType = curry(
 		<GENERICS, Initial>(
 			callback: (acc: Initial, current: GENERICS, index: number, array: GENERICS[]) => unknown,
 			initial: Initial,
@@ -169,25 +172,29 @@ export default class Linq<Type> {
 		},
 	) as any;
 
-	public static Chunk: (<GENERICS>(chunk: number, array: GENERICS[]) => GENERICS[][]) &
-		((chunk: number) => <GENERICS>(array: GENERICS[]) => GENERICS[][]) = curry(
-		<GENERICS>(size: number, array: GENERICS[]) =>
-			Linq.Reduce(
-				(arr, item, index): any => {
-					if (index % size === 0) {
-						return [...arr, [item]];
-					}
-					return [...arr.slice(0, -1), [...arr.slice(-1)[0], item]];
-				},
-				([] as any) as GENERICS[][],
-				array,
-			),
+	public static Chunk: ChunkType = curry(<GENERICS>(size: number, array: GENERICS[]) =>
+		Linq.Reduce(
+			(arr, item, index): any => {
+				if (index % size === 0) {
+					return [...arr, [item]];
+				}
+				return [...arr.slice(0, -1), [...arr.slice(-1)[0], item]];
+			},
+			([] as any) as GENERICS[][],
+			array,
+		),
 	) as any;
 
-	public static Range: ((length: number, steps: number) => number[]) &
-		((length: number) => (steps: number) => number[]) = curry((length: number, steps: number) =>
-		Array.from({ length }, (_, i) => i * steps),
-	);
+	public static Range: RangeType = (firstOrLength: number | string, secondOrSteps?: number | string) => {
+		if (secondOrSteps === undefined) {
+			const [x, y] = (firstOrLength as string).split("..");
+			return genCharArray(x, y) as any;
+		}
+		if (typeof firstOrLength === "string" && typeof secondOrSteps === "string") {
+			return genCharArray(firstOrLength, secondOrSteps);
+		}
+		return Array.from({ length: firstOrLength as number }, (_, i) => i * (secondOrSteps as number));
+	};
 
 	public static SortBy: (<GENERICS>(key: keyof GENERICS, array: GENERICS[]) => GENERICS[]) &
 		(<GENERICS>(
@@ -292,6 +299,10 @@ export default class Linq<Type> {
 		return this;
 	}
 
+	public Concat(list: Type[]) {
+		return this.Add(list);
+	}
+
 	public Select(transform?: ArrayCallback<Type>) {
 		if (transform !== undefined) {
 			return this.array.map(transform);
@@ -375,23 +386,36 @@ export default class Linq<Type> {
 		return Linq.Filter((x) => !Linq.Contains(x, exceptions), this.array);
 	}
 
-	public OrderBy(key?: keyof Type) {
+	public OrderBy(key?: keyof Type, sort?: OrderKeys) {
+		let array = this.array;
 		if (!!key) {
-			this.array = Linq.SortBy(key, this.array);
+			array = Linq.SortBy(key, this.array);
 		} else {
-			this.array = this.array.sort();
+			array = this.array.sort();
 		}
+		this.array = sort === "desc" ? [...array].reverse() : array;
 		return this;
 	}
 
 	public Includes(object: Type) {
 		return Linq.Some((x) => Equals(x, object), this.array);
 	}
+	public In(array: Type[]) {
+		const len = array.length
+		for (let index = 0; index < len; index++) {
+			const element = array[index];
+			const includesElement = this.Includes(element);
+			if (includesElement) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public Aggregate(
 		fn: (next: Type, accumulator: Type) => Type,
 		firstValue?: Type,
-		transform: <T extends Type>(val: Type) => T = (v: any) => v,
+		transform: (val: Type) => unknown = (v: any) => v as any,
 	) {
 		return Linq.Aggregate(firstValue ?? (spreadData(this.array[0]) as never), fn, this.array, transform);
 	}
@@ -404,7 +428,18 @@ export default class Linq<Type> {
 		return new Map<keyof Type, Type>(Linq.Map<any>((item) => [key, item], this.array));
 	}
 
-	public Zip<T>(array: T[], fn: (first: Type, second: T) => any) {
+	public Zip<T>(array: T[], fn: (first: Type, second?: T) => any) {
 		return Linq.Map((item, index) => fn(item, array[index]), this.array);
+	}
+
+	public Count(predicate?: ArrayCallbackAssertion<Type>) {
+		if (predicate === undefined) {
+			return this.array.length;
+		}
+		return Linq.Filter(predicate, this.array).length;
+	}
+
+	public Get(n: number) {
+		return spreadData(this.array[n]);
 	}
 }
