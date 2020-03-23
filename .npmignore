@@ -1,3 +1,7 @@
 publish.sh
 src/
 .prettierrc
+tsconfig.tsbuildinfo
+tsconfig.json
+tsconfig.build.json
+tests

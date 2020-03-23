@@ -16,8 +16,7 @@ export type ArrayCallbackAssertion<T> = (item: T, index: number, array: T[]) => 
 
 export type Reducer<Initial, GENERICS> = (acc: Initial, current: GENERICS, index: number, array: GENERICS[]) => Initial;
 
-const primitiveTypes = ["number", "boolean", "string"];
-export const isPrimitive = (some: never) => primitiveTypes.includes(typeof some);
+export type ArrayAsObj<T> = { [key in keyof T]: T };
 
 export type AggregateType = (<T>(
 	firstValue: T,
@@ -51,3 +50,23 @@ export type ReduceType = (<GENERICS, Initial>(
 
 export type EveryType = (<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => boolean) &
 	(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>) => (array: GENERICS[]) => boolean);
+
+export type SomeType = (<T>(callback: ArrayCallbackAssertion<T>) => (array: T[]) => boolean) &
+	(<T>(callback: ArrayCallbackAssertion<T>, array: T[]) => boolean);
+
+export type MapType = (<T>(callback: ArrayCallback<T>) => (array: T[]) => any[]) &
+	(<T>(callback: ArrayCallback<T>, array: T[]) => never[]);
+
+export type FilterType = (<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => GENERICS[]) &
+	(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>) => (array: GENERICS[]) => GENERICS[]);
+
+export type GroupByType = (<GENERICS>(key: keyof GENERICS, array: GENERICS[]) => Grouped<GENERICS>) &
+	(<GENERICS>(key: keyof GENERICS) => (array: GENERICS[]) => Grouped<GENERICS>);
+
+export type FindType = (<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => GENERICS | null) &
+	(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>) => (array: GENERICS[]) => GENERICS | null);
+
+export type SortParameters<GENERICS> = ((a: GENERICS, b: GENERICS) => number) | undefined | keyof GENERICS;
+
+export type SortType = (<GENERICS>(array: GENERICS[], sorterOrKey?: SortParameters<GENERICS>) => GENERICS[]) &
+	(<GENERICS>(array: GENERICS[]) => GENERICS[]);

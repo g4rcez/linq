@@ -27,14 +27,14 @@ export const curry = (fn: (...a: any) => any) => {
 	return curried;
 };
 
+const primitives = ["bigint", "boolean", "number", "string"];
+const isPrimitive = (e: unknown) => primitives.includes(typeof e);
+
 export const spreadData = (item: unknown) => {
-	if (Array.isArray(item)) {
-		return [...item];
+	if (isPrimitive(item)) {
+		return item;
 	}
-	if (typeof item === "object" && item !== null) {
-		return { ...item };
-	}
-	return item;
+	return deepClone(item);
 };
 
 export const getKey = <T>(obj: any, key?: any): T => {
@@ -46,12 +46,53 @@ export const getKey = <T>(obj: any, key?: any): T => {
 
 export const sortBy = (key: string) => (a: ObjectMap, b: ObjectMap) => (a[key] > b[key] ? 1 : b[key] > a[key] ? -1 : 0);
 
-export const genCharArray = (charA: string, charZ: string) => {
+const isNumber = (a: string) => /[0-9.]+/.test(a);
+
+const individualChars = (charA: string, charZ: string, jumps = 1) => {
 	const a = [];
 	let i = charA.charCodeAt(0);
 	const j = charZ.charCodeAt(0);
-	for (; i <= j; ++i) {
+	for (; i <= j; i += jumps) {
 		a.push(String.fromCharCode(i));
+	}
+	if (isNumber(charA) && isNumber(charZ)) {
+		return a.map((x) => Number.parseInt(x));
 	}
 	return a;
 };
+
+const getInSequence = (a: string, b: string): [number, number] => {
+	let x = Number.parseInt(a, 10);
+	let y = Number.parseInt(b, 10);
+	return x > y ? [y, x] : [x, y];
+};
+
+export const genCharArray = (charA: string, charZ: string, jumps = 1) => {
+	let abs = Math.abs(jumps);
+	if (charA.length > 1 || charZ.length > 1) {
+		if (isNumber(charA) && isNumber(charZ)) {
+			const a = [];
+			const [first, second] = getInSequence(charA, charZ);
+			for (let i = first; i <= second; i += abs) {
+				a.push(i);
+			}
+			return a;
+		}
+	}
+	return individualChars(charA, charZ, abs);
+};
+
+export const deepClone = (obj: any) => {
+	if (obj === null) {
+		return null;
+	}
+	let clone = Object.assign({}, obj);
+	Object.keys(clone).forEach((key) => (clone[key] = typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key]));
+	return Array.isArray(obj) && obj.length
+		? (clone.length = obj.length) && Array.from(clone)
+		: Array.isArray(obj)
+		? Array.from(obj)
+		: clone;
+};
+
+export const isNumberOrStr = (o: unknown) => ["string", "number"].includes(typeof o);
