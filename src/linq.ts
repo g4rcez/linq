@@ -36,6 +36,16 @@ const symbolMap: SymbolMap<any, any> = {
 
 const OperationFromSymbol = (symbol: Symbols) => symbolMap[symbol];
 
+const everyArray: EveryType = curry(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
+	for (let index = 0; index < array.length; index++) {
+		const includes = callback(array[index] as GENERICS, index, array);
+		if (!includes) {
+			return false;
+		}
+	}
+	return true;
+});
+
 export class Linq<Type> {
 	private array: Type[];
 
@@ -59,115 +69,24 @@ export class Linq<Type> {
 		},
 	) as AggregateType;
 
-	public static Map: MapType = curry(<T>(callback: ArrayCallback<T>, array: T[]) => {
-		const mappedArray = [];
-		let index = 0;
-		const len = array.length;
-		for (index; index < len; index++) {
-			const transform = callback(array[index] as T, index, array);
-			mappedArray.push(spreadData(transform) as T);
-		}
-		return mappedArray;
-	});
-
-	public static Filter: FilterType = curry(
-		<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
-			const mappedArray = [];
-			for (let index = 0; index < array.length; index++) {
-				const includes = callback(array[index] as GENERICS, index, array);
-				if (includes) {
-					mappedArray.push(spreadData(array[index]) as GENERICS);
-				}
-			}
-			return mappedArray;
-		},
-	);
-
-	public static GroupBy: GroupByType = curry(<GENERICS>(key: keyof GENERICS, array: GENERICS[]) =>
-		Linq.Reduce(
-			(g, el) => {
-				const name: keyof GENERICS = el[key] as never;
-				const chunk = g[name] || [];
-				g[name] = chunk;
-				g[name].push(el as any);
-				return g;
-			},
-			{} as Grouped<GENERICS>,
-			array,
-		),
-	);
-
-	public static Find: FindType = curry(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
-		for (let index = 0; index < array.length; index++) {
-			const includes = callback(array[index] as GENERICS, index, array);
-			if (includes) {
-				return spreadData(array[index]) as GENERICS;
-			}
-		}
-		return;
-	});
-
-	public static Some: SomeType = curry(<T>(callback: ArrayCallbackAssertion<T>, array: T[]) => {
-		for (let index = 0; index < array.length; index++) {
-			const includes = callback(array[index] as T, index, array);
-			if (includes) {
-				return true;
-			}
-		}
-		return false;
-	});
-
-	public static Every: EveryType = curry(
-		<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
-			for (let index = 0; index < array.length; index++) {
-				const includes = callback(array[index] as GENERICS, index, array);
-				if (!includes) {
-					return false;
-				}
-			}
-			return true;
-		},
-	);
-
-	public static All: EveryType = Linq.Every;
-
-	public static Unique: (<T>(array: T[], key?: keyof T) => T[]) & (<T>(array: T[]) => T[]) = <T>(
-		array: T[],
-		key?: keyof T,
-	) => {
-		if (key === undefined) {
-			return [...new Set(array)];
-		}
-		const seen = new Set();
-		if (Array.isArray(key)) {
-			return [...new Set(key)];
-		}
-		return Linq.Filter((el) => {
-			const duplicate = key ? seen.has(el[key]) : seen.has(key);
-			if (!!key) {
-				if (!duplicate) {
-					seen.add(el[key]);
-				}
-			}
-			return !duplicate;
-		}, array);
-	};
-
-	public static Reduce: ReduceType = curry(
-		<GENERICS, Initial>(
-			callback: (acc: Initial, current: GENERICS, index: number, array: GENERICS[]) => unknown,
-			initial: Initial,
-			array: GENERICS[],
-		) => {
-			let accumulator = initial;
-			for (let index = 0; index < array.length; index++) {
+	public static All = everyArray;
+	public static ArrayToMap: (<T>(key: keyof T, array: T[]) => Map<keyof T, T>) &
+		(<T>(key: keyof T) => (array: T[]) => Map<keyof T, T>) = curry(
+		<T>(key: keyof T, array: T[]): Map<keyof T, T> => {
+			const map = new Map<keyof T, T>();
+			const len = array.length;
+			for (let index = 0; index < len; index++) {
 				const element = array[index];
-				accumulator = callback(accumulator, element, index, array) as any;
+				const elementKey = element[key];
+				map.set(elementKey as never, element);
 			}
-			return accumulator;
+			return map;
 		},
-	) as any;
-
+	);
+	public static ArrayToObject: (<T>(key: keyof T, array: T[]) => ArrayAsObj<T>) &
+		(<T>(key: keyof T, array: T[]) => ArrayAsObj<T>) = curry(<T>(key: keyof T) => (array: T[]): ArrayAsObj<T> =>
+		array.reduce((acc, el) => ({ ...acc, [(el as any)[key]]: el }), {} as ArrayAsObj<T>),
+	);
 	public static Chunk: ChunkType = curry(<GENERICS>(size: number, array: GENERICS[]) =>
 		Linq.Reduce(
 			(arr, item, index): any => {
@@ -180,45 +99,6 @@ export class Linq<Type> {
 			array,
 		),
 	) as any;
-
-	public static Range: RangeType = (firstOrLength: number | string, secondOrSteps?: number | string, jumps = 1) => {
-		if (secondOrSteps === undefined) {
-			const [x, y, jp] = (firstOrLength as string).split("..");
-			if (jp === undefined) {
-				return genCharArray(x, y, 1) as any;
-			}
-			return genCharArray(x, jp, Number.parseInt(y, 10)) as any;
-		}
-		if (isNumberOrStr(firstOrLength) && isNumberOrStr(secondOrSteps)) {
-			return genCharArray(`${firstOrLength}`, `${secondOrSteps}`, jumps);
-		}
-		return Array.from({ length: firstOrLength as number }, (_, i) => i * Math.abs(secondOrSteps as number));
-	};
-
-	public static Sort: SortType = <GENERICS>(array: GENERICS[], key?: SortParameters<GENERICS>) => {
-		const shallowCopy = [...array];
-		if (key === undefined) {
-			shallowCopy.sort();
-			return shallowCopy;
-		}
-		if (typeof key === "function") {
-			shallowCopy.sort(key);
-			return shallowCopy;
-		}
-		shallowCopy.sort(sortBy(key as any) as never);
-		return shallowCopy;
-	};
-
-	public static Repeat: (<GENERICS>(element: GENERICS, repeat: number) => GENERICS[]) &
-		(<GENERICS>(element: GENERICS) => (repeat: number) => GENERICS[]) = curry(
-		<GENERICS>(element: GENERICS, repeat: number) => {
-			const array = [] as GENERICS[];
-			for (let index = 0; index < repeat; index++) {
-				array.push(element);
-			}
-			return array;
-		},
-	);
 
 	public static Contains: (<GENERICS>(element: GENERICS | keyof GENERICS, array: GENERICS[]) => boolean) &
 		(<GENERICS>(element: GENERICS | keyof GENERICS) => (array: GENERICS[]) => boolean) = curry(
@@ -241,42 +121,144 @@ export class Linq<Type> {
 			return false;
 		},
 	);
-
+	public static Every = everyArray;
+	public static Filter: FilterType = curry(
+		<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
+			const mappedArray = [];
+			for (let index = 0; index < array.length; index++) {
+				const includes = callback(array[index] as GENERICS, index, array);
+				if (includes) {
+					mappedArray.push(spreadData(array[index]) as GENERICS);
+				}
+			}
+			return mappedArray;
+		},
+	);
+	public static Find: FindType = curry(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
+		for (let index = 0; index < array.length; index++) {
+			const includes = callback(array[index] as GENERICS, index, array);
+			if (includes) {
+				return spreadData(array[index]) as GENERICS;
+			}
+		}
+		return;
+	});
+	public static GroupBy: GroupByType = curry(<GENERICS>(key: keyof GENERICS, array: GENERICS[]) =>
+		Linq.Reduce(
+			(g, el) => {
+				const name: keyof GENERICS = el[key] as never;
+				const chunk = g[name] || [];
+				g[name] = chunk;
+				g[name].push(el as any);
+				return g;
+			},
+			{} as Grouped<GENERICS>,
+			array,
+		),
+	);
+	public static Map: MapType = curry(<T>(callback: ArrayCallback<T>, array: T[]) => {
+		const mappedArray = [];
+		let index = 0;
+		const len = array.length;
+		for (index; index < len; index++) {
+			const transform = callback(array[index] as T, index, array);
+			mappedArray.push(spreadData(transform) as T);
+		}
+		return mappedArray;
+	});
+	public static MapToArray = <Key, Value>(map: Map<Key, Value>): Value[] => [...map.values()];
 	public static Max: (<GENERICS>(element: keyof GENERICS, array: GENERICS[]) => number) &
 		(<GENERICS>(
 			element: keyof GENERICS,
 		) => (array: GENERICS[]) => number) = curry(<GENERICS>(element: keyof GENERICS, array: GENERICS[]) =>
 		Linq.Reduce((oa, u) => Math.max(oa, u[element] as any), 0, array),
 	) as any;
-
 	public static Min: (<GENERICS>(element: keyof GENERICS, array: GENERICS[]) => number) &
 		(<GENERICS>(
 			element: keyof GENERICS,
 		) => (array: GENERICS[]) => number) = curry(<GENERICS>(element: keyof GENERICS, array: GENERICS[]) =>
 		Linq.Reduce((oa, u) => Math.min(oa, u[element] as any), Number.MAX_VALUE, array),
 	) as any;
-
-	public static MapToArray = <Key, Value>(map: Map<Key, Value>): Value[] => [...map.values()];
-
-	public static ArrayToMap: (<T>(key: keyof T, array: T[]) => Map<keyof T, T>) &
-		(<T>(key: keyof T) => (array: T[]) => Map<keyof T, T>) = curry(
-		<T>(key: keyof T, array: T[]): Map<keyof T, T> => {
-			const map = new Map<keyof T, T>();
-			const len = array.length;
-			for (let index = 0; index < len; index++) {
-				const element = array[index];
-				const elementKey = element[key];
-				map.set(elementKey as never, element);
+	public static Range: RangeType = (firstOrLength: number | string, secondOrSteps?: number | string, jumps = 1) => {
+		if (secondOrSteps === undefined) {
+			const [x, y, jp] = (firstOrLength as string).split("..");
+			if (jp === undefined) {
+				return genCharArray(x, y, 1) as any;
 			}
-			return map;
+			return genCharArray(x, jp, Number.parseInt(y, 10)) as any;
+		}
+		if (isNumberOrStr(firstOrLength) && isNumberOrStr(secondOrSteps)) {
+			return genCharArray(`${firstOrLength}`, `${secondOrSteps}`, jumps);
+		}
+		return Array.from({ length: firstOrLength as number }, (_, i) => i * Math.abs(secondOrSteps as number));
+	};
+	public static Reduce: ReduceType = curry(
+		<GENERICS, Initial>(
+			callback: (acc: Initial, current: GENERICS, index: number, array: GENERICS[]) => unknown,
+			initial: Initial,
+			array: GENERICS[],
+		) => {
+			let accumulator = initial;
+			for (let index = 0; index < array.length; index++) {
+				const element = array[index];
+				accumulator = callback(accumulator, element, index, array) as any;
+			}
+			return accumulator;
+		},
+	) as any;
+	public static Repeat: (<GENERICS>(element: GENERICS, repeat: number) => GENERICS[]) &
+		(<GENERICS>(element: GENERICS) => (repeat: number) => GENERICS[]) = curry(
+		<GENERICS>(element: GENERICS, repeat: number) => {
+			const array = [] as GENERICS[];
+			for (let index = 0; index < repeat; index++) {
+				array.push(element);
+			}
+			return array;
 		},
 	);
-
-	public static ArrayToObject: (<T>(key: keyof T, array: T[]) => ArrayAsObj<T>) &
-		(<T>(key: keyof T, array: T[]) => ArrayAsObj<T>) = curry(<T>(key: keyof T) => (array: T[]): ArrayAsObj<T> =>
-		array.reduce((acc, el) => ({ ...acc, [(el as any)[key]]: el }), {} as ArrayAsObj<T>),
-	);
-
+	public static Some: SomeType = curry(<T>(callback: ArrayCallbackAssertion<T>, array: T[]) => {
+		for (let index = 0; index < array.length; index++) {
+			const includes = callback(array[index] as T, index, array);
+			if (includes) {
+				return true;
+			}
+		}
+		return false;
+	});
+	public static Sort: SortType = <GENERICS>(array: GENERICS[], key?: SortParameters<GENERICS>) => {
+		const shallowCopy = [...array];
+		if (key === undefined) {
+			shallowCopy.sort();
+			return shallowCopy;
+		}
+		if (typeof key === "function") {
+			shallowCopy.sort(key);
+			return shallowCopy;
+		}
+		shallowCopy.sort(sortBy(key as any) as never);
+		return shallowCopy;
+	};
+	public static Unique: (<T>(array: T[], key?: keyof T) => T[]) & (<T>(array: T[]) => T[]) = <T>(
+		array: T[],
+		key?: keyof T,
+	) => {
+		if (key === undefined) {
+			return [...new Set(array)];
+		}
+		const seen = new Set();
+		if (Array.isArray(key)) {
+			return [...new Set(key)];
+		}
+		return Linq.Filter((el) => {
+			const duplicate = key ? seen.has(el[key]) : seen.has(key);
+			if (!!key) {
+				if (!duplicate) {
+					seen.add(el[key]);
+				}
+			}
+			return !duplicate;
+		}, array);
+	};
 	public Where: (
 		props:
 			| {
@@ -497,12 +479,3 @@ export class Linq<Type> {
 		return Linq.All(predicate, this.array);
 	}
 }
-
-const array = new Linq([1,2,3,4,5,6,7,8,9,10])
-//@ts-ignore
-console.log(
-    array.Where({
-        symbol: "!==",
-        value: 2
-  }).Sum()
-)
