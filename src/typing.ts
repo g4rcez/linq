@@ -1,6 +1,6 @@
 export type OrderKeys = "desc" | "asc";
 
-export type Symbols = "==" | "===" | ">" | ">=" | "<" | "<=" | "eq" | "is" | "!==" | "!=";
+export type Symbols = "==" | "===" | ">" | ">=" | "<" | "<=" | "eq" | "like" | "is" | "!==" | "!=";
 
 export type ObjectMap = { [key: string]: never };
 
@@ -15,6 +15,8 @@ export type ArrayCallback<T> = (item: T, index: number, array: T[]) => T;
 export type ArrayCallbackAssertion<T> = (item: T, index: number, array: T[]) => boolean;
 
 export type Reducer<Initial, GENERICS> = (acc: Initial, current: GENERICS, index: number, array: GENERICS[]) => Initial;
+
+export type Maybe<T> = T | null | undefined;
 
 export type ArrayAsObj<T> = { [key in keyof T]: T };
 
@@ -70,3 +72,6 @@ export type SortParameters<GENERICS> = ((a: GENERICS, b: GENERICS) => number) | 
 
 export type SortType = (<GENERICS>(array: GENERICS[], sorterOrKey?: SortParameters<GENERICS>) => GENERICS[]) &
 	(<GENERICS>(array: GENERICS[]) => GENERICS[]);
+
+export type WhereType = (<T>(callback: ArrayCallback<T>) => (array: T[]) => any[]) &
+	(<T>(callback: ArrayCallback<T>, array: T[]) => never[]);

@@ -10,12 +10,13 @@ import {
 	GroupByType,
 	Grouped,
 	MapType,
+	Maybe,
 	OrderKeys,
 	RangeType,
 	ReduceType,
 	SomeType,
-	SortType,
 	SortParameters,
+	SortType,
 	SymbolMap,
 	Symbols,
 } from "./typing";
@@ -30,6 +31,7 @@ const symbolMap: SymbolMap<any, any> = {
 	"===": (value, compare) => value === compare,
 	">": (value, compare) => value > compare,
 	">=": (value, compare) => value >= compare,
+	like: (value: string | number, compare: string | number) => new RegExp(`${compare}`, "g").test(`${value}`),
 	eq: Equals,
 	is: Object.is,
 };
@@ -121,7 +123,9 @@ export class Linq<Type> {
 			return false;
 		},
 	);
+
 	public static Every = everyArray;
+
 	public static Filter: FilterType = curry(
 		<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
 			const mappedArray = [];
@@ -134,6 +138,7 @@ export class Linq<Type> {
 			return mappedArray;
 		},
 	);
+
 	public static Find: FindType = curry(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
 		for (let index = 0; index < array.length; index++) {
 			const includes = callback(array[index] as GENERICS, index, array);
@@ -143,6 +148,7 @@ export class Linq<Type> {
 		}
 		return;
 	});
+
 	public static GroupBy: GroupByType = curry(<GENERICS>(key: keyof GENERICS, array: GENERICS[]) =>
 		Linq.Reduce(
 			(g, el) => {
@@ -156,6 +162,7 @@ export class Linq<Type> {
 			array,
 		),
 	);
+
 	public static Map: MapType = curry(<T>(callback: ArrayCallback<T>, array: T[]) => {
 		const mappedArray = [];
 		let index = 0;
@@ -166,19 +173,23 @@ export class Linq<Type> {
 		}
 		return mappedArray;
 	});
+
 	public static MapToArray = <Key, Value>(map: Map<Key, Value>): Value[] => [...map.values()];
+
 	public static Max: (<GENERICS>(element: keyof GENERICS, array: GENERICS[]) => number) &
 		(<GENERICS>(
 			element: keyof GENERICS,
 		) => (array: GENERICS[]) => number) = curry(<GENERICS>(element: keyof GENERICS, array: GENERICS[]) =>
 		Linq.Reduce((oa, u) => Math.max(oa, u[element] as any), 0, array),
-	) as any;
+	);
+
 	public static Min: (<GENERICS>(element: keyof GENERICS, array: GENERICS[]) => number) &
 		(<GENERICS>(
 			element: keyof GENERICS,
 		) => (array: GENERICS[]) => number) = curry(<GENERICS>(element: keyof GENERICS, array: GENERICS[]) =>
 		Linq.Reduce((oa, u) => Math.min(oa, u[element] as any), Number.MAX_VALUE, array),
-	) as any;
+	);
+
 	public static Range: RangeType = (firstOrLength: number | string, secondOrSteps?: number | string, jumps = 1) => {
 		if (secondOrSteps === undefined) {
 			const [x, y, jp] = (firstOrLength as string).split("..");
@@ -192,6 +203,7 @@ export class Linq<Type> {
 		}
 		return Array.from({ length: firstOrLength as number }, (_, i) => i * Math.abs(secondOrSteps as number));
 	};
+
 	public static Reduce: ReduceType = curry(
 		<GENERICS, Initial>(
 			callback: (acc: Initial, current: GENERICS, index: number, array: GENERICS[]) => unknown,
@@ -205,7 +217,8 @@ export class Linq<Type> {
 			}
 			return accumulator;
 		},
-	) as any;
+	);
+
 	public static Repeat: (<GENERICS>(element: GENERICS, repeat: number) => GENERICS[]) &
 		(<GENERICS>(element: GENERICS) => (repeat: number) => GENERICS[]) = curry(
 		<GENERICS>(element: GENERICS, repeat: number) => {
@@ -216,6 +229,7 @@ export class Linq<Type> {
 			return array;
 		},
 	);
+
 	public static Some: SomeType = curry(<T>(callback: ArrayCallbackAssertion<T>, array: T[]) => {
 		for (let index = 0; index < array.length; index++) {
 			const includes = callback(array[index] as T, index, array);
@@ -225,19 +239,19 @@ export class Linq<Type> {
 		}
 		return false;
 	});
+
 	public static Sort: SortType = <GENERICS>(array: GENERICS[], key?: SortParameters<GENERICS>) => {
 		const shallowCopy = [...array];
 		if (key === undefined) {
 			shallowCopy.sort();
-			return shallowCopy;
-		}
-		if (typeof key === "function") {
+		} else if (typeof key === "function") {
 			shallowCopy.sort(key);
-			return shallowCopy;
+		} else {
+			shallowCopy.sort(sortBy(key as any) as never);
 		}
-		shallowCopy.sort(sortBy(key as any) as never);
 		return shallowCopy;
 	};
+
 	public static Unique: (<T>(array: T[], key?: keyof T) => T[]) & (<T>(array: T[]) => T[]) = <T>(
 		array: T[],
 		key?: keyof T,
@@ -259,23 +273,15 @@ export class Linq<Type> {
 			return !duplicate;
 		}, array);
 	};
-	public Where: (
-		props:
-			| {
-					key?: keyof Type;
-					symbol?: Symbols;
-					value?: unknown;
-			  }
-			| ArrayCallbackAssertion<Type>,
-	) => this = (args) => {
+
+	public Where = (args: ArrayCallbackAssertion<Type> | Maybe<keyof Type>, symbol: Symbols, value: unknown): this => {
 		if (typeof args === "function") {
 			this.array = this.array.filter(args);
 			return this;
 		}
-		const { symbol, value, key } = args;
-		if (!!key && !!symbol && value) {
+		if (!!args && !!symbol && value) {
 			this.array = Linq.Filter(
-				(x, i, array) => OperationFromSymbol(symbol!)(getKey(x, key), value, i, array),
+				(x, i, array) => OperationFromSymbol(symbol!)(getKey(x, args), value, i, array),
 				this.array,
 			);
 		} else {
