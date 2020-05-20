@@ -291,7 +291,15 @@ export class Linq<Type> {
 	};
 
 	public Reverse() {
-		this.array = this.array.reverse();
+		let left = null;
+		let right = null;
+		let length = this.array.length;
+		for (left = 0; left < length / 2; left += 1) {
+			right = length - 1 - left;
+			let temporary = this.array[left];
+			this.array[left] = this.array[right];
+			this.array[right] = temporary;
+		}
 		return this;
 	}
 
