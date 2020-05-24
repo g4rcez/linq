@@ -31,6 +31,12 @@ test("Reverse Array", () => {
 	expect(arr).toEqual(arrays.Reverse().Select());
 });
 
+test("Range", () => {
+	const range = Linq.Range("18..40");
+	console.log(range);
+	expect(range.length).toEqual(23);
+});
+
 test("Where with like", () => {
 	const arrays = new Linq([
 		{ name: "Foo", surname: "Bar" },

@@ -38,9 +38,12 @@ export type AggregateType = (<T>(
 export type ChunkType = (<GENERICS>(chunk: number, array: GENERICS[]) => GENERICS[][]) &
 	((chunk: number) => <GENERICS>(array: GENERICS[]) => GENERICS[][]);
 
-export type RangeType = ((first: string, second: string) => string[]) &
-	((first: string) => string[]) &
-	((length: number, steps: number) => number[]);
+//firstOrLength: number | string, secondOrSteps?: number | string, jumps = 1
+export type RangeType = ((first: string) => string[]) &
+	((first: string, second: string) => string[]) &
+	((first: number, second: number) => number[]) &
+	((length: number, steps: number) => number[]) &
+	((first: number, second: number, steps: number) => number[]);
 
 export type ReduceType = (<GENERICS, Initial>(
 	callback: Reducer<Initial, GENERICS>,

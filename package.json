@@ -9,7 +9,7 @@
     "rm": "rm -rf build",
     "prepublish": "npm-run-all -s compile test",
     "compile": "npm-run-all -s rm build",
-    "test": "npx jest"
+    "test": "jest"
   },
   "author": "Allan Garcez <allan.f.garcez@gmail.com> (https://github.com/g4rcez)",
   "license": "MIT",
