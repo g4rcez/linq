@@ -38,7 +38,6 @@ export type AggregateType = (<T>(
 export type ChunkType = (<GENERICS>(chunk: number, array: GENERICS[]) => GENERICS[][]) &
 	((chunk: number) => <GENERICS>(array: GENERICS[]) => GENERICS[][]);
 
-//firstOrLength: number | string, secondOrSteps?: number | string, jumps = 1
 export type RangeType = ((first: string) => string[]) &
 	((first: string, second: string) => string[]) &
 	((first: number, second: number) => number[]) &
@@ -78,3 +77,11 @@ export type SortType = (<GENERICS>(array: GENERICS[], sorterOrKey?: SortParamete
 
 export type WhereType = (<T>(callback: ArrayCallback<T>) => (array: T[]) => any[]) &
 	(<T>(callback: ArrayCallback<T>, array: T[]) => never[]);
+
+export type Repeat = (<GENERICS>(element: GENERICS, repeat: number) => GENERICS[]) &
+	(<GENERICS>(element: GENERICS) => (repeat: number) => GENERICS[]);
+
+export type MathNumber = (<GENERICS>(element: keyof GENERICS, array: GENERICS[]) => number) &
+	((array: number[]) => number);
+
+export type Unique = (<T>(array: T[], key?: keyof T) => T[]) & (<T>(array: T[]) => T[]);

@@ -1,4 +1,4 @@
-import {
+import type {
 	AggregateType,
 	ArrayAsObj,
 	ArrayCallback,
@@ -19,6 +19,9 @@ import {
 	SortType,
 	SymbolMap,
 	Symbols,
+	Repeat,
+	MathNumber,
+	Unique,
 } from "./typing";
 import { curry, deepClone, Equals, genCharArray, getKey, isNumberOrStr, sortBy, spreadData } from "./utils";
 
@@ -72,6 +75,7 @@ export class Linq<Type> {
 	) as AggregateType;
 
 	public static All = everyArray;
+	
 	public static ArrayToMap: (<T>(key: keyof T, array: T[]) => Map<keyof T, T>) &
 		(<T>(key: keyof T) => (array: T[]) => Map<keyof T, T>) = curry(
 		<T>(key: keyof T, array: T[]): Map<keyof T, T> => {
@@ -85,10 +89,12 @@ export class Linq<Type> {
 			return map;
 		},
 	);
+
 	public static ArrayToObject: (<T>(key: keyof T, array: T[]) => ArrayAsObj<T>) &
 		(<T>(key: keyof T, array: T[]) => ArrayAsObj<T>) = curry(<T>(key: keyof T) => (array: T[]): ArrayAsObj<T> =>
 		array.reduce((acc, el) => ({ ...acc, [(el as any)[key]]: el }), {} as ArrayAsObj<T>),
 	);
+
 	public static Chunk: ChunkType = curry(<GENERICS>(size: number, array: GENERICS[]) =>
 		Linq.Reduce(
 			(arr, item, index): any => {
@@ -176,19 +182,24 @@ export class Linq<Type> {
 
 	public static MapToArray = <Key, Value>(map: Map<Key, Value>): Value[] => [...map.values()];
 
-	public static Max: (<GENERICS>(element: keyof GENERICS, array: GENERICS[]) => number) &
-		(<GENERICS>(
-			element: keyof GENERICS,
-		) => (array: GENERICS[]) => number) = curry(<GENERICS>(element: keyof GENERICS, array: GENERICS[]) =>
-		Linq.Reduce((oa, u) => Math.max(oa, u[element] as any), 0, array),
-	);
+	public static Max: MathNumber = <GENERICS>(element: keyof GENERICS|number[], array?: GENERICS[]) => {
+		if(Array.isArray(element)){
+			return Linq.Reduce((max, x) => Math.max(max, x as any), 0, element)
+		}
+		return Linq.Reduce((max, x) => Math.max(max, x[element] as any), 0, array!)
+	}
+	public static Min: MathNumber = <GENERICS>(element: keyof GENERICS|number[], array?: GENERICS[]) => {
+		if(Array.isArray(element)){
+			return Linq.Reduce((min, x) => Math.min(min, x as any), Number.MAX_VALUE, element);
+		}
+		return Linq.Reduce((min, x) => Math.min(min, x[element] as any), Number.MAX_VALUE, array!);
+	}
 
-	public static Min: (<GENERICS>(element: keyof GENERICS, array: GENERICS[]) => number) &
-		(<GENERICS>(
-			element: keyof GENERICS,
-		) => (array: GENERICS[]) => number) = curry(<GENERICS>(element: keyof GENERICS, array: GENERICS[]) =>
-		Linq.Reduce((oa, u) => Math.min(oa, u[element] as any), Number.MAX_VALUE, array),
-	);
+	public static Random<T>(array: T[]){
+		const len = array.length
+		const i = Math.floor(Math.random() * array.length)
+		return array[i];
+	}
 
 	public static Range: RangeType = (firstOrLength: number | string, secondOrSteps?: number | string, jumps = 1) => {
 		if (secondOrSteps === undefined) {
@@ -219,8 +230,7 @@ export class Linq<Type> {
 		},
 	);
 
-	public static Repeat: (<GENERICS>(element: GENERICS, repeat: number) => GENERICS[]) &
-		(<GENERICS>(element: GENERICS) => (repeat: number) => GENERICS[]) = curry(
+	public static Repeat: Repeat = curry(
 		<GENERICS>(element: GENERICS, repeat: number) => {
 			const array = [] as GENERICS[];
 			for (let index = 0; index < repeat; index++) {
@@ -252,7 +262,7 @@ export class Linq<Type> {
 		return shallowCopy;
 	};
 
-	public static Unique: (<T>(array: T[], key?: keyof T) => T[]) & (<T>(array: T[]) => T[]) = <T>(
+	public static Unique: Unique = <T>(
 		array: T[],
 		key?: keyof T,
 	) => {
@@ -324,6 +334,7 @@ export class Linq<Type> {
 	public Concat(list: Type[]) {
 		return this.Add(list);
 	}
+
 
 	public Select(transform?: ArrayCallback<Type>) {
 		if (transform !== undefined) {
