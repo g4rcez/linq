@@ -121,18 +121,16 @@ export class Linq<Type> {
 
 	public static Every = everyArray;
 
-	public static Filter: FilterType = curry(
-		<G>(callback: ArrayCallbackAssertion<G>, array: G[]) => {
-			const mappedArray = [];
-			for (let index = 0; index < array.length; index++) {
-				const includes = callback(array[index] as G, index, array);
-				if (includes) {
-					mappedArray.push(spreadData(array[index]) as G);
-				}
+	public static Filter: FilterType = curry(<G>(callback: ArrayCallbackAssertion<G>, array: G[]) => {
+		const mappedArray = [];
+		for (let index = 0; index < array.length; index++) {
+			const includes = callback(array[index] as G, index, array);
+			if (includes) {
+				mappedArray.push(spreadData(array[index]) as G);
 			}
-			return mappedArray;
-		},
-	);
+		}
+		return mappedArray;
+	});
 
 	public static Find: FindType = curry(<G>(callback: ArrayCallbackAssertion<G>, array: G[]) => {
 		for (let index = 0; index < array.length; index++) {
@@ -455,7 +453,7 @@ export class Linq<Type> {
 	}
 
 	public Reduce(fn: (next: Type, accumulator: Type) => Type, firstValue: Type) {
-		return Linq.Reduce(firstValue ?? (spreadData(this.array[0]) as any), fn, this.array);
+		return Linq.Reduce(fn, firstValue ?? (spreadData(this.array[0]) as any), this.array);
 	}
 
 	public Empty() {
