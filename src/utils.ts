@@ -1,6 +1,6 @@
 import { ObjectMap } from "./typing";
 
-export const Equals = (a: any, b: any): boolean => {
+export const equals = (a: any, b: any): boolean => {
 	if (a === b) {
 		return true;
 	}
@@ -17,7 +17,7 @@ export const Equals = (a: any, b: any): boolean => {
 	if (keys.length !== Object.keys(b).length) {
 		return false;
 	}
-	return keys.every((k) => Equals(a[k], b[k]));
+	return keys.every((k) => equals(a[k], b[k]));
 };
 
 export const curry = (fn: (...a: any) => any) => {
@@ -28,6 +28,7 @@ export const curry = (fn: (...a: any) => any) => {
 };
 
 const primitives = ["bigint", "boolean", "number", "string"];
+
 const isPrimitive = (e: unknown) => primitives.includes(typeof e);
 
 export const spreadData = (item: unknown) => {
@@ -95,4 +96,4 @@ export const deepClone = (obj: any) => {
 		: clone;
 };
 
-export const isNumberOrStr = (o: unknown) => ["string", "number"].includes(typeof o);
+export const isNumberOrString = (o: unknown) => ["string", "number"].includes(typeof o);

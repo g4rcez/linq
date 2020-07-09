@@ -1,5 +1,4 @@
-import type {
-	AggregateType,
+import {
 	ArrayAsObj,
 	ArrayCallback,
 	ArrayCallbackAssertion,
@@ -10,20 +9,20 @@ import type {
 	GroupByType,
 	Grouped,
 	MapType,
+	MathNumber,
 	Maybe,
 	OrderKeys,
 	RangeType,
 	ReduceType,
+	Repeat,
 	SomeType,
 	SortParameters,
 	SortType,
 	SymbolMap,
 	Symbols,
-	Repeat,
-	MathNumber,
 	Unique,
 } from "./typing";
-import { curry, deepClone, Equals, genCharArray, getKey, isNumberOrStr, sortBy, spreadData } from "./utils";
+import { curry, deepClone, equals, genCharArray, getKey, isNumberOrString, sortBy, spreadData } from "./utils";
 
 const symbolMap: SymbolMap<any, any> = {
 	"!=": (value, compare) => value != compare,
@@ -35,7 +34,7 @@ const symbolMap: SymbolMap<any, any> = {
 	">": (value, compare) => value > compare,
 	">=": (value, compare) => value >= compare,
 	like: (value: string | number, compare: string | number) => new RegExp(`${compare}`, "g").test(`${value}`),
-	eq: Equals,
+	eq: equals,
 	is: Object.is,
 };
 
@@ -54,28 +53,20 @@ const everyArray: EveryType = curry(<GENERICS>(callback: ArrayCallbackAssertion<
 export class Linq<Type> {
 	private array: Type[];
 
-	public constructor(array: Type[]) {
+	public constructor(array: Type[] = []) {
 		this.array = [...array];
 	}
 
-	public static From<T>(array: T[]) {
-		return new Linq<T>(array);
-	}
+	public static From = <T>(array: T[]) => new Linq<T>(array);
 
-	public static Aggregate = curry(
-		<T>(
-			firstValue: T,
-			fn: (next: T, accumulator: T) => T,
-			array: T[],
-			transform: (val: T) => unknown = (v: unknown) => v,
-		) => {
-			const val = Linq.Reduce(fn, firstValue, array);
-			return transform(val) as any;
-		},
-	) as AggregateType;
+	public static Clone = <T>(array: T[]) => new Linq(deepClone(array));
+
+	public static First = <T>(array: T[]) => array[0];
+
+	public static Last = <T>(array: T[]) => array[array.length - 1];
 
 	public static All = everyArray;
-	
+
 	public static ArrayToMap: (<T>(key: keyof T, array: T[]) => Map<keyof T, T>) &
 		(<T>(key: keyof T) => (array: T[]) => Map<keyof T, T>) = curry(
 		<T>(key: keyof T, array: T[]): Map<keyof T, T> => {
@@ -95,7 +86,7 @@ export class Linq<Type> {
 		array.reduce((acc, el) => ({ ...acc, [(el as any)[key]]: el }), {} as ArrayAsObj<T>),
 	);
 
-	public static Chunk: ChunkType = curry(<GENERICS>(size: number, array: GENERICS[]) =>
+	public static Chunk: ChunkType = curry(<T>(size: number, array: T[]) =>
 		Linq.Reduce(
 			(arr, item, index): any => {
 				if (index % size === 0) {
@@ -103,53 +94,51 @@ export class Linq<Type> {
 				}
 				return [...arr.slice(0, -1), [...arr.slice(-1)[0], item]];
 			},
-			([] as any) as GENERICS[][],
+			([] as any) as T[][],
 			array,
 		),
 	) as any;
 
-	public static Contains: (<GENERICS>(element: GENERICS | keyof GENERICS, array: GENERICS[]) => boolean) &
-		(<GENERICS>(element: GENERICS | keyof GENERICS) => (array: GENERICS[]) => boolean) = curry(
-		<GENERICS>(element: GENERICS | keyof GENERICS, array: GENERICS[]) => {
-			if (typeof element === "object") {
-				for (let index = 0; index < array.length; index++) {
-					const current = array[index];
-					if (Equals(element, current)) {
-						return true;
-					}
-				}
-				return false;
-			}
+	public static Contains: (<T>(element: T | keyof T, array: T[]) => boolean) &
+		(<T>(element: T | keyof T) => (array: T[]) => boolean) = curry(<T>(element: T | keyof T, array: T[]) => {
+		if (typeof element === "object") {
 			for (let index = 0; index < array.length; index++) {
 				const current = array[index];
-				if (Equals(element, current)) {
+				if (equals(element, current)) {
 					return true;
 				}
 			}
 			return false;
-		},
-	);
+		}
+		for (let index = 0; index < array.length; index++) {
+			const current = array[index];
+			if (equals(element, current)) {
+				return true;
+			}
+		}
+		return false;
+	});
 
 	public static Every = everyArray;
 
 	public static Filter: FilterType = curry(
-		<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
+		<G>(callback: ArrayCallbackAssertion<G>, array: G[]) => {
 			const mappedArray = [];
 			for (let index = 0; index < array.length; index++) {
-				const includes = callback(array[index] as GENERICS, index, array);
+				const includes = callback(array[index] as G, index, array);
 				if (includes) {
-					mappedArray.push(spreadData(array[index]) as GENERICS);
+					mappedArray.push(spreadData(array[index]) as G);
 				}
 			}
 			return mappedArray;
 		},
 	);
 
-	public static Find: FindType = curry(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => {
+	public static Find: FindType = curry(<G>(callback: ArrayCallbackAssertion<G>, array: G[]) => {
 		for (let index = 0; index < array.length; index++) {
-			const includes = callback(array[index] as GENERICS, index, array);
+			const includes = callback(array[index] as G, index, array);
 			if (includes) {
-				return spreadData(array[index]) as GENERICS;
+				return spreadData(array[index]) as G;
 			}
 		}
 		return;
@@ -182,22 +171,23 @@ export class Linq<Type> {
 
 	public static MapToArray = <Key, Value>(map: Map<Key, Value>): Value[] => [...map.values()];
 
-	public static Max: MathNumber = <GENERICS>(element: keyof GENERICS|number[], array?: GENERICS[]) => {
-		if(Array.isArray(element)){
-			return Linq.Reduce((max, x) => Math.max(max, x as any), 0, element)
+	public static Max: MathNumber = <G>(element: keyof G | number[], array?: G[]) => {
+		if (Array.isArray(element)) {
+			return Linq.Reduce((max, x) => Math.max(max, x as any), 0, element);
 		}
-		return Linq.Reduce((max, x) => Math.max(max, x[element] as any), 0, array!)
-	}
-	public static Min: MathNumber = <GENERICS>(element: keyof GENERICS|number[], array?: GENERICS[]) => {
-		if(Array.isArray(element)){
+		return Linq.Reduce((max, x) => Math.max(max, x[element] as any), 0, array!);
+	};
+
+	public static Min: MathNumber = <G>(element: keyof G | number[], array?: G[]) => {
+		if (Array.isArray(element)) {
 			return Linq.Reduce((min, x) => Math.min(min, x as any), Number.MAX_VALUE, element);
 		}
 		return Linq.Reduce((min, x) => Math.min(min, x[element] as any), Number.MAX_VALUE, array!);
-	}
+	};
 
-	public static Random<T>(array: T[]){
-		const len = array.length
-		const i = Math.floor(Math.random() * array.length)
+	public static Random<T>(array: T[]) {
+		const len = array.length;
+		const i = Math.floor(Math.random() * array.length);
 		return array[i];
 	}
 
@@ -209,18 +199,14 @@ export class Linq<Type> {
 			}
 			return genCharArray(x, jp, Number.parseInt(y, 10)) as any;
 		}
-		if (isNumberOrStr(firstOrLength) && isNumberOrStr(secondOrSteps)) {
+		if (isNumberOrString(firstOrLength) && isNumberOrString(secondOrSteps)) {
 			return genCharArray(`${firstOrLength}`, `${secondOrSteps}`, jumps);
 		}
 		return Array.from({ length: firstOrLength as number }, (_, i) => i * Math.abs(secondOrSteps as number));
 	};
 
 	public static Reduce: ReduceType = curry(
-		<GENERICS, Initial>(
-			callback: (acc: Initial, current: GENERICS, index: number, array: GENERICS[]) => unknown,
-			initial: Initial,
-			array: GENERICS[],
-		) => {
+		<T, I>(callback: (acc: I, current: T, index: number, array: T[]) => unknown, initial: I, array: T[]) => {
 			let accumulator = initial;
 			for (let index = 0; index < array.length; index++) {
 				const element = array[index];
@@ -230,15 +216,13 @@ export class Linq<Type> {
 		},
 	);
 
-	public static Repeat: Repeat = curry(
-		<GENERICS>(element: GENERICS, repeat: number) => {
-			const array = [] as GENERICS[];
-			for (let index = 0; index < repeat; index++) {
-				array.push(element);
-			}
-			return array;
-		},
-	);
+	public static Repeat: Repeat = curry(<T>(element: T, repeat: number) => {
+		const array = [] as T[];
+		for (let index = 0; index < repeat; index++) {
+			array.push(element);
+		}
+		return array;
+	});
 
 	public static Some: SomeType = curry(<T>(callback: ArrayCallbackAssertion<T>, array: T[]) => {
 		for (let index = 0; index < array.length; index++) {
@@ -262,10 +246,7 @@ export class Linq<Type> {
 		return shallowCopy;
 	};
 
-	public static Unique: Unique = <T>(
-		array: T[],
-		key?: keyof T,
-	) => {
+	public static Unique: Unique = <T>(array: T[], key?: keyof T) => {
 		if (key === undefined) {
 			return [...new Set(array)];
 		}
@@ -284,7 +265,22 @@ export class Linq<Type> {
 		}, array);
 	};
 
-	public Where = (args: ArrayCallbackAssertion<Type> | Maybe<keyof Type>, symbol: Symbols, value: unknown): this => {
+	public static Where = <T>(
+		array: T[],
+		args: ArrayCallbackAssertion<T> | Maybe<keyof T>,
+		symbol: Symbols,
+		value: unknown,
+	) => {
+		if (typeof args === "function") {
+			return array.filter(args);
+		}
+		if (!!args && !!symbol && value) {
+			return Linq.Filter((x, i, array) => OperationFromSymbol(symbol!)(getKey(x, args), value, i, array), array);
+		}
+		return Linq.Filter((x, i, array) => OperationFromSymbol(symbol!)(x, value, i, array), array);
+	};
+
+	public Where = (args: ArrayCallbackAssertion<Type> | Maybe<keyof Type>, symbol: Symbols, value: unknown) => {
 		if (typeof args === "function") {
 			this.array = this.array.filter(args);
 			return this;
@@ -331,11 +327,6 @@ export class Linq<Type> {
 		return this;
 	}
 
-	public Concat(list: Type[]) {
-		return this.Add(list);
-	}
-
-
 	public Select(transform?: ArrayCallback<Type>) {
 		if (transform !== undefined) {
 			return this.array.map(transform);
@@ -355,6 +346,7 @@ export class Linq<Type> {
 	public Head() {
 		return spreadData(this.array[0]);
 	}
+
 	public Tail() {
 		return this.Skip(1);
 	}
@@ -378,7 +370,7 @@ export class Linq<Type> {
 		this.array = Linq.Filter((el: Type, index: number, array: Type[]) => {
 			let findIndex;
 			if (typeof el === "object") {
-				findIndex = array.findIndex((obj: unknown) => Equals(obj, el));
+				findIndex = array.findIndex((obj: unknown) => equals(obj, el));
 			} else {
 				findIndex = array.indexOf(el);
 			}
@@ -400,15 +392,16 @@ export class Linq<Type> {
 	}
 
 	public Last(predicate?: ArrayCallbackAssertion<Type>) {
+		const len = this.array.length;
 		if (predicate !== undefined) {
-			for (let index = this.array.length; index !== 0; index--) {
+			for (let index = len; index !== 0; index--) {
 				const includes = predicate(this.array[index] as Type, index, this.array);
 				if (includes) {
 					return spreadData(this.array[index]);
 				}
 			}
 		}
-		return;
+		return this.array[len - 1];
 	}
 
 	public Sum(key?: keyof Type) {
@@ -446,7 +439,7 @@ export class Linq<Type> {
 	}
 
 	public Includes(object: Type) {
-		return Linq.Some((x) => Equals(x, object), this.array);
+		return Linq.Some((x) => equals(x, object), this.array);
 	}
 
 	public In(array: Type[]) {
@@ -461,12 +454,8 @@ export class Linq<Type> {
 		return false;
 	}
 
-	public Aggregate(
-		fn: (next: Type, accumulator: Type) => Type,
-		firstValue?: Type,
-		transform: (val: Type) => unknown = (v: any) => v as any,
-	) {
-		return Linq.Aggregate(firstValue ?? (spreadData(this.array[0]) as any), fn, this.array, transform);
+	public Reduce(fn: (next: Type, accumulator: Type) => Type, firstValue: Type) {
+		return Linq.Reduce(firstValue ?? (spreadData(this.array[0]) as any), fn, this.array);
 	}
 
 	public Empty() {
@@ -498,9 +487,5 @@ export class Linq<Type> {
 
 	public ToObject(key: keyof Type): ArrayAsObj<Type> {
 		return Linq.ArrayToObject(key, this.array);
-	}
-
-	public All(predicate: ArrayCallbackAssertion<Type>) {
-		return Linq.All(predicate, this.array);
 	}
 }

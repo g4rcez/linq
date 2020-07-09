@@ -20,20 +20,12 @@ export type Maybe<T> = T | null | undefined;
 
 export type ArrayAsObj<T> = { [key in keyof T]: T };
 
-export type AggregateType = (<T>(
+export type AggregateType = <T>(
 	firstValue: T,
 	fn: (next: T, accumulator: T) => T,
 	array: T[],
 	transform: (val: T) => unknown,
-) => any) &
-	(<T>(
-		firstValue: T,
-	) => (fn: (next: T, accumulator: T) => T) => (array: T[]) => (transform: (val: T) => unknown) => any) &
-	(<T>(
-		firstValue: T,
-		fn: (next: T, accumulator: T) => T,
-	) => (array: T[]) => (transform: (val: T) => unknown) => any) &
-	(<T>(firstValue: T, fn: (next: T, accumulator: T) => T, array: T[]) => (transform: (val: T) => unknown) => any);
+) => any;
 
 export type ChunkType = (<GENERICS>(chunk: number, array: GENERICS[]) => GENERICS[][]) &
 	((chunk: number) => <GENERICS>(array: GENERICS[]) => GENERICS[][]);

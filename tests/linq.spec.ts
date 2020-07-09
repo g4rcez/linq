@@ -33,7 +33,6 @@ test("Reverse Array", () => {
 
 test("Range", () => {
 	const range = Linq.Range("18..40");
-	console.log(range);
 	expect(range.length).toEqual(23);
 });
 
