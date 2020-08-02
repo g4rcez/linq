@@ -45,7 +45,12 @@ export const getKey = <T>(obj: any, key?: any): T => {
 	return obj;
 };
 
-export const sortBy = (key: string) => (a: ObjectMap, b: ObjectMap) => (a[key] > b[key] ? 1 : b[key] > a[key] ? -1 : 0);
+export const sortBy = (key: string) => (a: ObjectMap, b: ObjectMap) => {
+	if (a[key] === b[key]) {
+		return 0;
+	}
+	return a[key] > b[key] ? 1 : -1;
+};
 
 const isNumber = (a: string) => /[0-9.]+/.test(a);
 

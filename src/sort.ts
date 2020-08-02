@@ -1,28 +1,66 @@
 type Key<T> = T extends string ? string : keyof T;
 
-export const StringSort = <T>(key?: Key<T>, reverse = false) => (a: T, b: T) => {
-	if (typeof a === "string") {
-		return a.localeCompare((b as unknown) as string);
-	}
-	const valA = (a[key as keyof T] as unknown) as string;
-	const valB = (b[key as keyof T] as unknown) as string;
-	return reverse ? valA.localeCompare(valB) * -1 : valA.localeCompare(valB);
+const selectTuple = <T, S>(a: T, b: T, key: keyof T | string) => {
+	const valA = (a[key as keyof T] as unknown) as S;
+	const valB = (b[key as keyof T] as unknown) as S;
+	return [valA, valB];
 };
 
-export const NumberSort = <T>(key?: Key<T>, reverse = false) => (a: T, b: T) => {
-	if (typeof a === "number") {
-		return a - ((b as unknown) as number);
+const isNil = (key: unknown) => key === undefined || key === null;
+
+export const StringSort = <T>(key?: Key<T> | null, reverse = false) => {
+	if (reverse) {
+		return (a: T, b: T) => {
+			if (isNil(key)) {
+				return ((b as any) as string).localeCompare((a as unknown) as string);
+			}
+			const [valA, valB] = selectTuple(a, b, key!);
+			return valA.localeCompare(valB);
+		};
 	}
-	const valA = (a[key as keyof T] as unknown) as number;
-	const valB = (b[key as keyof T] as unknown) as number;
-	return reverse ? valB - valA : valA - valB;
+	return (a: T, b: T) => {
+		if (isNil(key)) {
+			return (a as any).localeCompare((b as unknown) as string);
+		}
+		const [valA, valB] = selectTuple(a, b, key!);
+		return valA.localeCompare(valB) * -1;
+	};
 };
 
-export const DateSort = <T>(key?: Key<T>, reverse = false) => (a: T, b: T) => {
-	if (typeof a === "string") {
-		return Date.parse(a) - Date.parse(b as any);
+export const NumberSort = <T>(key?: Key<T>, reverse = false) => {
+	if (reverse) {
+		return (a: T, b: T) => {
+			if (isNil(key)) {
+				return ((b as any) as number) - (a as any);
+			}
+			const [valA, valB] = selectTuple(a, b, key!);
+			return valB - valA;
+		};
 	}
-	const valA = Date.parse(a[key as keyof T] as any);
-	const valB = Date.parse(b[key as keyof T] as any);
-	return reverse ? valB - valA : valA - valB;
+	return (a: T, b: T) => {
+		if (isNil(key)) {
+			return (a as any) - ((b as unknown) as number);
+		}
+		const [valA, valB] = selectTuple(a, b, key!);
+		return valA - valB;
+	};
+};
+
+export const DateSort = <T>(key?: Key<T>, reverse = false) => {
+	if (reverse) {
+		return (a: T, b: T) => {
+			if (isNil(key)) {
+				return Date.parse(b as any) - Date.parse(a as any);
+			}
+			const [valA, valB] = selectTuple(a, b, key!);
+			return Date.parse(valB) - Date.parse(valA);
+		};
+	}
+	return (a: T, b: T) => {
+		if (isNil(key)) {
+			return Date.parse(a as any) - Date.parse(b as any);
+		}
+		const [valA, valB] = selectTuple(a, b, key!);
+		return Date.parse(valA) - Date.parse(valB);
+	};
 };
