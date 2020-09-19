@@ -24,11 +24,11 @@ import {
 } from "./typing";
 import { curry, deepClone, equals, genCharArray, getKey, isNumberOrString, sortBy, spreadData } from "./utils";
 
-const MathMinMax = <G>(operation: "max" | "min", element: keyof G | number[], array?: G[]) => {
+const MathMinMax = <G>(math: typeof Math.min | typeof Math.min, element: keyof G | number[], array?: G[]) => {
 	if (Array.isArray(element)) {
-		return Linq.Reduce((max, x) => Math[operation](max, x as any), 0, element);
+		return Linq.Reduce((max, x) => math(max, x as any), 0, element);
 	}
-	return Linq.Reduce((max, x) => Math[operation](max, x[element] as any), 0, array!);
+	return Linq.Reduce((max, x) => math(max, x[element] as any), 0, array!);
 };
 
 const symbolMap: SymbolMap<any, any> = {
@@ -68,8 +68,6 @@ export class Linq<Type> {
 	public constructor(array: Type[] = []) {
 		this.array = Linq.Clone<Type>(array);
 	}
-
-	public static From = <T>(array: T[]) => new Linq<T>(array);
 
 	public static Clone = <T>(array: T[]) => deepClone(array);
 
@@ -210,11 +208,11 @@ export class Linq<Type> {
 	public static MapToArray = <Key, Value>(map: Map<Key, Value>): Value[] => [...map.values()];
 
 	public static Max: MathNumber = <G>(element: keyof G | number[], array?: G[]) => {
-		return MathMinMax("max", element, array)
+		return MathMinMax(Math.max, element, array);
 	};
 
 	public static Min: MathNumber = <G>(element: keyof G | number[], array?: G[]) => {
-		return MathMinMax("min", element, array)
+		return MathMinMax(Math.min, element, array);
 	};
 
 	public static Random<T>(array: T[]) {
@@ -268,7 +266,7 @@ export class Linq<Type> {
 		return false;
 	});
 
-	public static Sort: SortType = <GENERICS>(array: GENERICS[], key?: SortParameters<GENERICS>) => {
+	public static Sort: SortType = <S>(array: S[], key?: SortParameters<S>) => {
 		const shallowCopy = [...array];
 		if (key === undefined) {
 			shallowCopy.sort();
@@ -282,7 +280,7 @@ export class Linq<Type> {
 
 	public static Unique: Unique = <T>(array: T[], key?: keyof T) => {
 		if (key === undefined) {
-			return [...new Set(array)];
+			return [...new Set(array).values()];
 		}
 		const seen = new Set();
 		if (Array.isArray(key)) {
@@ -350,7 +348,9 @@ export class Linq<Type> {
 	public Prepend(el: Type | Type[]) {
 		if (Array.isArray(el)) {
 			this.array = el.concat(this.array);
-		} else this.array = [el].concat(this.array);
+		} else {
+			this.array = [el].concat(this.array);
+		}
 		return this;
 	}
 
@@ -410,7 +410,7 @@ export class Linq<Type> {
 			}
 		}
 		const last = [...this.array].pop();
-		return spreadData(last)
+		return spreadData(last);
 	}
 
 	public Sum(key?: keyof Type) {
@@ -484,7 +484,7 @@ export class Linq<Type> {
 
 	public Get = (n: number) => spreadData(this.array[n]);
 
-	public Clone = () => new Linq(deepClone(this.array));
+	public Clone = () => new Linq<Type>(deepClone(this.array));
 
 	public ToObject = (key: keyof Type): ArrayAsObj<Type> => Linq.ArrayToObject(key, this.array);
 }
