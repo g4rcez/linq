@@ -1,3 +1,6 @@
+import { SortParameters } from "./typing";
+import { sortBy } from "./utils";
+
 type Key<T> = T extends string ? string : keyof T;
 
 const selectTuple = <T, S>(a: T, b: T, key: keyof T | string) => {
@@ -8,7 +11,7 @@ const selectTuple = <T, S>(a: T, b: T, key: keyof T | string) => {
 
 const isNil = (key: unknown) => key === undefined || key === null;
 
-export const StringSort = <T>(key?: Key<T> | null, reverse = false) => {
+export const sortString = <T>(key?: Key<T> | null, reverse = false) => {
 	if (reverse) {
 		return (a: T, b: T) => {
 			if (isNil(key)) {
@@ -27,7 +30,7 @@ export const StringSort = <T>(key?: Key<T> | null, reverse = false) => {
 	};
 };
 
-export const NumberSort = <T>(key?: Key<T>, reverse = false) => {
+export const sortNumber = <T>(key?: Key<T>, reverse = false) => {
 	if (reverse) {
 		return (a: T, b: T) => {
 			if (isNil(key)) {
@@ -46,7 +49,7 @@ export const NumberSort = <T>(key?: Key<T>, reverse = false) => {
 	};
 };
 
-export const DateSort = <T>(key?: Key<T>, reverse = false) => {
+export const sortDate = <T>(key?: Key<T>, reverse = false) => {
 	if (reverse) {
 		return (a: T, b: T) => {
 			if (isNil(key)) {
@@ -63,4 +66,16 @@ export const DateSort = <T>(key?: Key<T>, reverse = false) => {
 		const [valA, valB] = selectTuple(a, b, key!);
 		return Date.parse(valA) - Date.parse(valB);
 	};
+};
+
+export const sort = <S>(array: S[], key?: SortParameters<S>) => {
+	const shallowCopy = [...array];
+	if (key === undefined) {
+		shallowCopy.sort();
+	} else if (typeof key === "function") {
+		shallowCopy.sort(key);
+	} else {
+		shallowCopy.sort(sortBy(key as any) as never);
+	}
+	return shallowCopy;
 };

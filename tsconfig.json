@@ -9,7 +9,7 @@
     "declarationDir": "./build",
     "rootDir": "./src",
     "outDir": "./build",
-    "target": "ES3",
+    "target": "ESNext",
     "declaration": true,
     "composite": true,
     "moduleResolution": "node",

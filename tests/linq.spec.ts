@@ -1,4 +1,4 @@
-import Linq from "../build";
+import Linq, { range } from "../src";
 
 const reduceSum = (acc: number, el: number) => acc + el;
 
@@ -32,8 +32,7 @@ test("Reverse Array", () => {
 });
 
 test("Range", () => {
-	const range = Linq.Range("18..40");
-	expect(range.length).toEqual(23);
+	expect(range("18..40").length).toEqual(23);
 });
 
 test("Where with like", () => {

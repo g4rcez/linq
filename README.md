@@ -6,7 +6,7 @@ Based on `System.Linq` in C#, but in TS for browser and node (server side);
 
 ## Features
 
-- The same methods (not all) of `Array.prototype`, but with composition (curry parameters)
+- The same methods (not all) of `Array.prototype`
 - Typescript out of box
 - Make the massive and repetitive operations for you, like `sort by key`, `order by key`, `sorter for strings/numbers/date`
 - A set of tools in Fluent Interface to work with arrays
@@ -52,30 +52,6 @@ array.Select((x) => x ** 2) // the same of Array.prototype.map
 ```
 
 ## API
-
-Static methods
-
-- `constructor(array: Type[])`: Constructor receive an array for base operations
-- `static From<T>(array: T[])`: The same of use `new Linq()`
-- `static Map(callback: (item: T, i: number, array: T[]) => T)`: The same of `Array.prototype.map`, but curried parameters (callback and array)
-- static Filter: The same of `Array.prototype.filter`, but curried paramets (callback and array)
-- `static GroupBy<GENERICS>(key: keyof GENERICS, array: GENERICS[])`: Group items by key in array, any key it's a object with value of key 
-- static Find: The same of `Array.prototype.find`, but curried paramets (callback and array)
-- static Some: The same of `Array.prototype.some`, but curried paramets (callback and array)
-- static Every: The same of `Array.prototype.every`, but curried paramets (callback and array)
-- static All: The same of `Every`
-- `static Unique(<T>(array: T[], key?: keyof T)) & (<T>(array: T[]))`: Get unique items of array, from key or from values (works correctly only for primitive types)
-- static Reduce: The same of `Array.prototype.reduce`, but curried paramets (callback, initialValue and array)
-- `static Chunk(size: number, array: GENERICS[])`: Create a chunk with N items of array. Like pagination, but don't provide page control
-- `static Range(firstOrLength: number | string, secondOrSteps?: number | string, jumps)`: Create a range from two integers, two strings or works with one string in pattern `INITIAL..FINAL` or `INITIAL..JUMPS..FINAL`
-- `static Sort(array: GENERICS[], key?: SortParameters<GENERICS>)`: Sort array by key or function sorter (the same parameter of `Array.prototype.sort`). If Sort called with null parameters, use the `array.sort()` and order by ASCII characters order
-- `static Repeat(element: GENERICS, repeat: number)`: repeat N times in array with the element (first parameter)
-- `static Contains(element: GENERICS | keyof GENERICS, array: GENERICS[])`: Check if array contains the element
-- `static Max(element: keyof GENERICS, array: GENERICS[]) => number)`: Get the maximum value of property/value in array
-- `static Min(element: keyof GENERICS, array: GENERICS[]) => number)`: Get the minimum value of property/value in array
-- `static MapToArray<Key, Value>(map: Map<Key, Value>)`: Convert any Map to array
-- `static ArrayToMap(key: keyof T, array: T[]))`: Create a Map from array and use the value of key in each object as key for Map
-- `static ArrayToObject(<T>(key: keyof T, array: T[])`: Create a object from array and use the value of key in each object as key for object
 
 Instance methods
 

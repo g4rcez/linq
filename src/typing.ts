@@ -2,7 +2,7 @@ export type OrderKeys = "desc" | "asc";
 
 export type Symbols = "==" | "===" | ">" | ">=" | "<" | "<=" | "eq" | "like" | "is" | "!==" | "!=";
 
-export type ObjectMap = { [key: string]: never };
+export type ObjectMap = { [key: string]: any };
 
 export type Grouped<GENERICS> = { [K in keyof GENERICS]: GENERICS[K][] };
 
@@ -44,11 +44,7 @@ export type ReduceType = (<GENERICS, Initial>(
 	(<GENERICS, Initial>(callback: Reducer<Initial, GENERICS>) => (initial: Initial, array: GENERICS[]) => Initial) &
 	(<GENERICS, Initial>(callback: Reducer<Initial, GENERICS>) => (initial: Initial) => (array: GENERICS[]) => Initial);
 
-export type EveryType = (<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>, array: GENERICS[]) => boolean) &
-	(<GENERICS>(callback: ArrayCallbackAssertion<GENERICS>) => (array: GENERICS[]) => boolean);
-
-export type SomeType = (<T>(callback: ArrayCallbackAssertion<T>) => (array: T[]) => boolean) &
-	(<T>(callback: ArrayCallbackAssertion<T>, array: T[]) => boolean);
+export type EveryType = <T>(callback: ArrayCallbackAssertion<T>, array: T[]) => boolean;
 
 export type MapType = (<T>(callback: ArrayCallback<T>) => (array: T[]) => any[]) &
 	(<T>(callback: ArrayCallback<T>, array: T[]) => never[]);

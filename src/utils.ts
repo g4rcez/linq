@@ -1,4 +1,8 @@
+import { deepClone } from "./clone";
 import { ObjectMap } from "./typing";
+
+export const isObject = (a: any): a is Object => typeof a === "object";
+export const isFunction = (a: any): a is Function => typeof a === "function";
 
 export const equals = (a: any, b: any): boolean => {
 	if (a === b) {
@@ -7,7 +11,7 @@ export const equals = (a: any, b: any): boolean => {
 	if (a instanceof Date && b instanceof Date) {
 		return a.getTime() === b.getTime();
 	}
-	if (!a || !b || (typeof a !== "object" && typeof b !== "object")) {
+	if (!a || !b || (!isObject(a) && !isObject(b))) {
 		return a === b;
 	}
 	if (a.prototype !== b.prototype) {
@@ -18,13 +22,6 @@ export const equals = (a: any, b: any): boolean => {
 		return false;
 	}
 	return keys.every((k) => equals(a[k], b[k]));
-};
-
-export const curry = (fn: (...a: any) => any) => {
-	const curried = function(...t: any[]) {
-		return t.length >= fn.length ? fn.call(this as any, ...t) : curried.bind(this as any, ...t);
-	};
-	return curried;
 };
 
 const primitives = ["bigint", "boolean", "number", "string"];
@@ -39,7 +36,7 @@ export const spreadData = (item: unknown) => {
 };
 
 export const getKey = <T>(obj: any, key?: any): T => {
-	if ((typeof obj === "object" || Array.isArray(obj)) && !!key) {
+	if ((isObject(obj) || Array.isArray(obj)) && !!key) {
 		return obj[key];
 	}
 	return obj;
@@ -73,7 +70,7 @@ const getInSequence = (a: string, b: string): [number, number] => {
 	return x > y ? [y, x] : [x, y];
 };
 
-export const genCharArray = (charA: string, charZ: string, jumps = 1) => {
+export const createChars = (charA: string, charZ: string, jumps = 1) => {
 	let abs = Math.abs(jumps);
 	if (charA.length > 1 || charZ.length > 1) {
 		if (isNumber(charA) && isNumber(charZ)) {
@@ -88,17 +85,4 @@ export const genCharArray = (charA: string, charZ: string, jumps = 1) => {
 	return individualChars(charA, charZ, abs);
 };
 
-export const deepClone = (obj: any) => {
-	if (obj === null) {
-		return null;
-	}
-	let clone = Object.assign({}, obj);
-	Object.keys(clone).forEach((key) => (clone[key] = typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key]));
-	return Array.isArray(obj) && obj.length
-		? (clone.length = obj.length) && Array.from(clone)
-		: Array.isArray(obj)
-		? Array.from(obj)
-		: clone;
-};
-
-export const isNumberOrString = (o: unknown) => ["string", "number"].includes(typeof o);
+export const isNumberOrString = (o: unknown): o is string | number => ["string", "number"].includes(typeof o);
