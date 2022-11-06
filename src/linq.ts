@@ -11,7 +11,15 @@ import { reduce } from "./methods/reduce";
 import { reverse } from "./methods/reverse";
 import { skip } from "./methods/skip";
 import { sort } from "./methods/sort";
-import { ArrayAsObj, ArrayCallback, ArrayCallbackAssertion, Maybe, OrderKeys, Symbols } from "./methods/typing";
+import {
+  ArrayAsObj,
+  ArrayCallback,
+  ArrayCallbackAssertion,
+  Maybe,
+  OrderKeys,
+  SortParameters,
+  Symbols,
+} from "./methods/typing";
 import { equals, getKey } from "./methods/utils";
 import { where } from "./methods/where";
 
@@ -144,9 +152,7 @@ export class Linq<L> {
     for (let index = 0; index < len; index++) {
       const element = array[index];
       const includesElement = this.Includes(element);
-      if (includesElement) {
-        return true;
-      }
+      if (includesElement) return true;
     }
     return false;
   }
@@ -184,5 +190,9 @@ export class Linq<L> {
 
   public ToObject(key: keyof L): ArrayAsObj<L> {
     return dict(key, this.array);
+  }
+
+  public Sort(sorter?: SortParameters<L>) {
+    return sort(this.array, sorter);
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "linq-arrays",
-  "version": "2.0.1-rc",
+  "version": "2.0.2-rc",
   "description": "Emulate LINQ syntax to work with Arrays in JS",
   "main": "./build/index.js",
   "scripts": {
