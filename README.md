@@ -8,7 +8,8 @@ Based on `System.Linq` in C#, but in TS for browser and node (server side);
 
 - The same methods (not all) of `Array.prototype`
 - Typescript out of box
-- Make the massive and repetitive operations for you, like `sort by key`, `order by key`, `sorter for strings/numbers/date`
+- Make the massive and repetitive operations for you, like `sort by key`, `order by key`
+  , `sorter for strings/numbers/date`
 - A set of tools in Fluent Interface to work with arrays
 
 ## Install
@@ -24,9 +25,9 @@ pnpm add linq-arrays
 ## Using
 
 ```typescript
-const array = new Linq([1,2,3,4,5,6,7,8,9,10]);
+const array = new Linq ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 // you can create a instance with Linq.From(array) 
-array.Sum() // 55
+array.Sum () // 55
 /* 
     with .Where, you can use some symbols to make your filter more simple
     - != : compare use !=
@@ -40,26 +41,29 @@ array.Sum() // 55
 	eq: compare use Equals in `src/utils.ts`
 	is: compare use Object.is (JS method)
 */
-array.Where({ symbol: "!==", value: 2 }).Sum() // 53
+array.Where ({symbol: "!==", value: 2}).Sum () // 53
 // or you can pass you function
-array.Where((number, index, allItems) => number !== 2) // the same of Array.prototype.filter
-array.ToArray() // return the array after all operations 
+array.Where ((number, index, allItems) => number !== 2) // the same of Array.prototype.filter
+array.ToArray () // return the array after all operations 
 /* 
     args accept a method, the same of Array.prototype.map. 
     If empty, just return the array like .ToArray
 */
-array.Select((x) => x ** 2) // the same of Array.prototype.map
+array.Select ((x) => x ** 2) // the same of Array.prototype.map
 ```
 
 ## API
 
-Instance methods
+```typescript
+const array = new Linq ([1, 2, 3, 4, 5, 6, 7, 8, 9])
+```
 
 - `Reverse()`: use the `Array.prototype.reverse` to reverse array
 - `Add(el: Type | Type[])`: Add an item/items to last position of array with push/concat
 - `Prepend(el: Type | Type[])`: Add an item/items to first position of array with push/concat
 - `Concat(list: Type[])`: Concat an array to your array
-- `Select(transform?: ArrayCallback<Type>)`: Get array from Linq instance. The argument is a optional function, and works equals `Array.prototype.map`
+- `Select(transform?: ArrayCallback<Type>)`: Get array from Linq instance. The argument is a optional function, and
+  works equals `Array.prototype.map`
 - `Take(init: number, end?: number)`: Take `n` items of array. If end is null, use `n:array.length`
 - `Head()`: Get first item of array
 - `Tail()`: Return all items, except first
@@ -67,11 +71,12 @@ Instance methods
 - `Distinct()`: like Linq.Unique
 - `ToArray()`: Get array from instance
 - `First(predicate?: ArrayCallbackAssertion<Type>)`: Return the first item of array or apply `Array.prototype.find`
-- `Last(predicate?: ArrayCallbackAssertion<Type>)`: Return the last item of array or apply `Array.prototype.find` in reverse array (using `Array.prototype.reverse`)
+- `Last(predicate?: ArrayCallbackAssertion<Type>)`: Return the last item of array or apply `Array.prototype.find` in
+  reverse array (using `Array.prototype.reverse`)
 - `Sum(key?: keyof Type)`: Sum all items of array. You can specify the property or sum all primitive values in array
 - `Average(key?: keyof Type)`: Get Average of `Linq.Sum`
 - `GroupBy(key: keyof Type)`: The same of static method `Linq.GroupBy`
-- `Except(exceptions: Type[])`: Get all items not in argument array 
+- `Except(exceptions: Type[])`: Get all items not in argument array
 - `Intersect(commons: Type[])`: Get all items in argument array
 - `OrderBy(key?: keyof Type, sort?: OrderKeys)`: Order array from key
 - `Includes(object: Type)`: Check if array includes the object

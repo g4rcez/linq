@@ -68,14 +68,9 @@ export const sortDate = <T>(key?: Key<T>, reverse = false) => {
   };
 };
 
-export const sort = <S>(array: S[], key?: SortParameters<S>) => {
+export const sort = <S>(array: S[], sorter?: SortParameters<S>) => {
   const shallowCopy = [...array];
-  if (key === undefined) {
-    shallowCopy.sort();
-  } else if (typeof key === "function") {
-    shallowCopy.sort(key);
-  } else {
-    shallowCopy.sort(sortBy(key as any) as never);
-  }
-  return shallowCopy;
+  if (sorter === undefined) return shallowCopy.sort();
+  if (typeof sorter === "function") return shallowCopy.sort(sorter);
+  return shallowCopy.sort(sortBy(sorter as any) as never);
 };

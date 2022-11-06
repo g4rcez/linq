@@ -12,7 +12,7 @@ import { reverse } from "./methods/reverse";
 import { skip } from "./methods/skip";
 import { sort } from "./methods/sort";
 import { ArrayAsObj, ArrayCallback, ArrayCallbackAssertion, Maybe, OrderKeys, Symbols } from "./methods/typing";
-import { equals, getKey, spreadData } from "./methods/utils";
+import { equals, getKey } from "./methods/utils";
 import { where } from "./methods/where";
 
 export class Linq<L> {
@@ -34,7 +34,7 @@ export class Linq<L> {
 
   public Add(el: L | L[]) {
     if (Array.isArray(el)) {
-      this.array.push(...el);
+      this.array = this.array.concat(el);
     } else {
       this.array.push(el);
     }
@@ -51,23 +51,20 @@ export class Linq<L> {
   }
 
   public Select(transform?: ArrayCallback<L>) {
-    if (transform !== undefined) {
-      return this.array.map(transform);
-    }
-    return this.array;
+    return transform !== undefined ? this.array.map(transform) : this.array;
   }
 
   public Take(init: number, end?: number) {
     if (end !== undefined) {
-      this.array = [...this.array].slice(init, Math.max(0, end));
+      this.array = this.array.slice(init, Math.max(0, end));
     } else {
-      this.array = [...this.array].slice(init);
+      this.array = this.array.slice(init);
     }
     return this;
   }
 
   public Head() {
-    return spreadData(this.array[0]);
+    return this.array[0];
   }
 
   public Tail() {
@@ -88,11 +85,7 @@ export class Linq<L> {
   }
 
   public First(predicate?: ArrayCallbackAssertion<L>) {
-    if (predicate === undefined) {
-      return spreadData(this.array[0]);
-    }
-    const data = find(predicate, this.array) || null;
-    return spreadData(data);
+    return predicate === undefined ? this.array[0] : find(predicate, this.array) || null;
   }
 
   public Last(predicate?: ArrayCallbackAssertion<L>) {
@@ -101,12 +94,11 @@ export class Linq<L> {
       for (let index = len; index !== 0; index--) {
         const includes = predicate(this.array[index] as L, index, this.array);
         if (includes) {
-          return spreadData(this.array[index]);
+          return this.array[index];
         }
       }
     }
-    const last = [...this.array].pop();
-    return spreadData(last);
+    return this.array[this.array.length - 1];
   }
 
   public Sum(key?: keyof L) {
@@ -133,11 +125,11 @@ export class Linq<L> {
   }
 
   public OrderBy(key?: keyof L, order?: OrderKeys) {
-    let array = this.array;
+    let array: L[];
     if (!!key) {
       array = sort(this.array, key);
     } else {
-      array = this.array.sort();
+      array = [...this.array].sort();
     }
     this.array = order === "desc" ? reverse(array) : array;
     return this;
@@ -160,7 +152,7 @@ export class Linq<L> {
   }
 
   public Reduce(fn: (next: L, accumulator: L) => L, firstValue: L) {
-    return reduce(fn, firstValue ?? (spreadData(this.array[0]) as any), this.array);
+    return reduce(fn, firstValue ?? (this.array[0] as any), this.array);
   }
 
   public Empty() {
@@ -183,7 +175,7 @@ export class Linq<L> {
   }
 
   public Get(n: number) {
-    return spreadData(this.array[n]);
+    return this.array[n];
   }
 
   public Clone() {

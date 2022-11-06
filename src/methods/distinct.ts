@@ -1,11 +1,9 @@
 import { filter } from "./filter";
 import { equals, isObject } from "./utils";
 
-export const distinct = <T>(array: T[]) => {
-  return filter((el, index, array) => {
-    if (isObject(el)) {
-      return index === array.findIndex((obj: unknown) => equals(obj, el));
-    }
-    return index === array.indexOf(el);
-  }, array);
-};
+export const distinct = <T>(array: T[]) =>
+  filter(
+    (el, index, array) =>
+      isObject(el) ? index === array.findIndex((obj: unknown) => equals(obj, el)) : index === array.indexOf(el),
+    array
+  );

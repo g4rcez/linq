@@ -1,4 +1,5 @@
 import Linq from "../src";
+import { test, expect } from "vitest";
 
 test("Where === N", () => {
   const arr = [{ X: 1 }, { X: 1 }, { X: 1 }, { X: 1 }, { X: 1 }, { X: 1 }, { X: 1 }, { X: 1 }, { X: 2 }];
