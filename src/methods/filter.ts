@@ -11,3 +11,15 @@ export const filter = <T>(callback: ArrayCallbackAssertion<T>, array: T[]) => {
   }
   return mappedArray;
 };
+
+export const compact = <T>(array: T[]) => {
+  const mappedArray = [];
+  const len = array.length;
+  for (let index = 0; index < len; index++) {
+    const element = array[index];
+    if (Boolean(element)) {
+      mappedArray.push(array[index] as T);
+    }
+  }
+  return mappedArray;
+};

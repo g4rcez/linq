@@ -23,14 +23,14 @@ import {
 import { equals, getKey } from "./methods/utils";
 import { where } from "./methods/where";
 
-export class Linq<L> {
-  private array: L[];
+export class Linq<LIST> {
+  private array: LIST[];
 
-  public constructor(array: L[] = []) {
-    this.array = deepClone<L[]>(array);
+  public constructor(array: LIST[] = []) {
+    this.array = deepClone<LIST[]>(array);
   }
 
-  public Where(args: ArrayCallbackAssertion<L> | Maybe<keyof L>, symbol?: Symbols, value?: any) {
+  public Where(args: ArrayCallbackAssertion<LIST> | Maybe<keyof LIST>, symbol?: Symbols, value?: any) {
     this.array = where(this.array, args, symbol, value);
     return this;
   }
@@ -40,16 +40,16 @@ export class Linq<L> {
     return this;
   }
 
-  public Add(el: L | L[]) {
+  public Add(el: LIST | LIST[]) {
     if (Array.isArray(el)) {
       this.array = this.array.concat(el);
     } else {
-      this.array.push(el);
+      this.array = this.array.concat([el]);
     }
     return this;
   }
 
-  public Prepend(el: L | L[]) {
+  public Prepend(el: LIST | LIST[]) {
     if (Array.isArray(el)) {
       this.array = el.concat(this.array);
     } else {
@@ -58,8 +58,8 @@ export class Linq<L> {
     return this;
   }
 
-  public Select(transform?: ArrayCallback<L>) {
-    return transform !== undefined ? this.array.map(transform) : this.array;
+  public Select(transform?: ArrayCallback<LIST>) {
+    return transform !== undefined ? this.array.map(transform) : [...this.array];
   }
 
   public Take(init: number, end?: number) {
@@ -79,7 +79,7 @@ export class Linq<L> {
     return this.Skip(1);
   }
 
-  public Skip(jumps: number | ArrayCallbackAssertion<L>) {
+  public Skip(jumps: number | ArrayCallbackAssertion<LIST>) {
     return skip(jumps, this.array);
   }
 
@@ -92,48 +92,47 @@ export class Linq<L> {
     return this.array;
   }
 
-  public First(predicate?: ArrayCallbackAssertion<L>) {
+  public First(predicate?: ArrayCallbackAssertion<LIST>) {
     return predicate === undefined ? this.array[0] : find(predicate, this.array) || null;
   }
 
-  public Last(predicate?: ArrayCallbackAssertion<L>) {
+  public Last(predicate?: ArrayCallbackAssertion<LIST>) {
     const len = this.array.length;
-    if (predicate !== undefined) {
-      for (let index = len; index !== 0; index--) {
-        const includes = predicate(this.array[index] as L, index, this.array);
-        if (includes) {
-          return this.array[index];
-        }
+    if (predicate === undefined) {
+      return this.array[len - 1];
+    }
+    for (let index = len; index !== 0; index--) {
+      const includes = predicate(this.array[index] as LIST, index, this.array);
+      if (includes) {
+        return this.array[index];
       }
     }
-    return this.array[this.array.length - 1];
   }
 
-  public Sum(key?: keyof L) {
-    if (key === undefined) {
-      return reduce((acc, el) => (acc as number) + (el as unknown as number), 0, this.array);
-    }
-    return reduce((acc, el) => acc + getKey<number>(el, key), 0, this.array);
+  public Sum(key?: keyof LIST) {
+    return key === undefined
+      ? reduce((acc, el) => (acc as number) + (el as unknown as number), 0, this.array)
+      : reduce((acc, el) => acc + getKey<number>(el, key), 0, this.array);
   }
 
-  public Average(key?: keyof L) {
+  public Average(key?: keyof LIST) {
     return this.Sum(key) / this.array.length;
   }
 
-  public GroupBy(key: keyof L) {
+  public GroupBy(key: keyof LIST) {
     return groupBy(key, this.array);
   }
 
-  public Except(exceptions: L[]) {
+  public Except(exceptions: LIST[]) {
     return filter((x) => !contains(x, exceptions), this.array);
   }
 
-  public Intersect(commons: L[]) {
+  public Intersect(commons: LIST[]) {
     return filter((x) => contains(x, commons), this.array);
   }
 
-  public OrderBy(key?: keyof L, order?: OrderKeys) {
-    let array: L[];
+  public OrderBy(key?: keyof LIST, order?: OrderKeys) {
+    let array: LIST[];
     if (!!key) {
       array = sort(this.array, key);
     } else {
@@ -143,11 +142,11 @@ export class Linq<L> {
     return this;
   }
 
-  public Includes(object: L) {
+  public Includes(object: LIST) {
     return any((x) => equals(x, object), this.array);
   }
 
-  public In(array: L[]) {
+  public In(array: LIST[]) {
     const len = array.length;
     for (let index = 0; index < len; index++) {
       const element = array[index];
@@ -157,7 +156,7 @@ export class Linq<L> {
     return false;
   }
 
-  public Reduce(fn: (next: L, accumulator: L) => L, firstValue: L) {
+  public Reduce(fn: (next: LIST, accumulator: LIST) => LIST, firstValue: LIST) {
     return reduce(fn, firstValue ?? (this.array[0] as any), this.array);
   }
 
@@ -165,15 +164,15 @@ export class Linq<L> {
     return this.array.length === 0;
   }
 
-  public ToMap<K>(key: keyof L): Map<K, L> {
-    return new Map<K, L>(map<any>((item) => [key, item], this.array));
+  public ToMap<K>(key: keyof LIST): Map<K, LIST> {
+    return new Map<K, LIST>(map<any>((item) => [key, item], this.array));
   }
 
-  public Zip(array: L[], fn: (first: L, second?: L) => any) {
+  public Zip(array: LIST[], fn: (first: LIST, second?: LIST) => any) {
     return map((item, index) => fn(item, array[index]), this.array);
   }
 
-  public Count(predicate?: ArrayCallbackAssertion<L>) {
+  public Count(predicate?: ArrayCallbackAssertion<LIST>) {
     if (predicate === undefined) {
       return this.array.length;
     }
@@ -185,14 +184,14 @@ export class Linq<L> {
   }
 
   public Clone() {
-    return new Linq<L>(deepClone(this.array));
+    return new Linq<LIST>(deepClone(this.array));
   }
 
-  public ToObject(key: keyof L): ArrayAsObj<L> {
-    return dict(key, this.array);
+  public ToObject(key: keyof LIST): ArrayAsObj<LIST> {
+    return dict(this.array, key);
   }
 
-  public Sort(sorter?: SortParameters<L>) {
+  public Sort(sorter?: SortParameters<LIST>) {
     return sort(this.array, sorter);
   }
 }

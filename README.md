@@ -8,8 +8,7 @@ Based on `System.Linq` in C#, but in TS for browser and node (server side);
 
 - The same methods (not all) of `Array.prototype`
 - Typescript out of box
-- Make the massive and repetitive operations for you, like `sort by key`, `order by key`
-  , `sorter for strings/numbers/date`
+- Make the massive and repetitive operations for you, like `sort by key`, `order by key`, `sorter for strings/numbers/date`
 - A set of tools in Fluent Interface to work with arrays
 
 ## Install

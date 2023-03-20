@@ -5,7 +5,7 @@ export { deepClone } from "./methods/clone";
 export { contains } from "./methods/contains";
 export { dict } from "./methods/dict";
 export { distinct } from "./methods/distinct";
-export { filter } from "./methods/filter";
+export { filter, compact } from "./methods/filter";
 export { find } from "./methods/find";
 export { first, last, tail } from "./methods/get";
 export { groupBy } from "./methods/group-by";
