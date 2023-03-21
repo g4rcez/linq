@@ -107,6 +107,7 @@ export class Linq<LIST> {
         return this.array[index];
       }
     }
+    return undefined;
   }
 
   public Sum(key?: keyof LIST) {
