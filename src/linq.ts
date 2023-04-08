@@ -22,15 +22,16 @@ import {
 } from "./methods/typing";
 import { equals, getKey } from "./methods/utils";
 import { where } from "./methods/where";
+import { range } from "./methods/range";
 
-export class Linq<LIST> {
-  private array: LIST[];
+export class Linq<Entity> {
+  private array: Entity[];
 
-  public constructor(array: LIST[] = []) {
-    this.array = deepClone<LIST[]>(array);
+  public constructor(array: Entity[] = []) {
+    this.array = deepClone<Entity[]>(array);
   }
 
-  public Where(args: ArrayCallbackAssertion<LIST> | Maybe<keyof LIST>, symbol?: Symbols, value?: any) {
+  public Where(args: ArrayCallbackAssertion<Entity> | Maybe<keyof Entity>, symbol?: Symbols, value?: any) {
     this.array = where(this.array, args, symbol, value);
     return this;
   }
@@ -40,26 +41,18 @@ export class Linq<LIST> {
     return this;
   }
 
-  public Add(el: LIST | LIST[]) {
-    if (Array.isArray(el)) {
-      this.array = this.array.concat(el);
-    } else {
-      this.array = this.array.concat([el]);
-    }
+  public Add(el: Entity | Entity[]) {
+    this.array = Array.isArray(el) ? this.array.concat(el) : this.array.concat([el]);
     return this;
   }
 
-  public Prepend(el: LIST | LIST[]) {
-    if (Array.isArray(el)) {
-      this.array = el.concat(this.array);
-    } else {
-      this.array = [el].concat(this.array);
-    }
+  public Prepend(el: Entity | Entity[]) {
+    this.array = Array.isArray(el) ? el.concat(this.array) : [el].concat(this.array);
     return this;
   }
 
-  public Select(transform?: ArrayCallback<LIST>) {
-    return transform !== undefined ? this.array.map(transform) : [...this.array];
+  public Select(transform?: ArrayCallback<Entity>) {
+    return transform !== undefined ? this.array.map(transform) : this.array;
   }
 
   public Take(init: number, end?: number) {
@@ -79,7 +72,7 @@ export class Linq<LIST> {
     return this.Skip(1);
   }
 
-  public Skip(jumps: number | ArrayCallbackAssertion<LIST>) {
+  public Skip(jumps: number | ArrayCallbackAssertion<Entity>) {
     return skip(jumps, this.array);
   }
 
@@ -88,21 +81,17 @@ export class Linq<LIST> {
     return this;
   }
 
-  public ToArray() {
-    return this.array;
-  }
-
-  public First(predicate?: ArrayCallbackAssertion<LIST>) {
+  public First(predicate?: ArrayCallbackAssertion<Entity>) {
     return predicate === undefined ? this.array[0] : find(predicate, this.array) || null;
   }
 
-  public Last(predicate?: ArrayCallbackAssertion<LIST>) {
+  public Last(predicate?: ArrayCallbackAssertion<Entity>) {
     const len = this.array.length;
     if (predicate === undefined) {
       return this.array[len - 1];
     }
     for (let index = len; index !== 0; index--) {
-      const includes = predicate(this.array[index] as LIST, index, this.array);
+      const includes = predicate(this.array[index] as Entity, index, this.array);
       if (includes) {
         return this.array[index];
       }
@@ -110,44 +99,40 @@ export class Linq<LIST> {
     return undefined;
   }
 
-  public Sum(key?: keyof LIST) {
+  public Sum<K extends keyof Entity>(key?: K) {
     return key === undefined
       ? reduce((acc, el) => (acc as number) + (el as unknown as number), 0, this.array)
       : reduce((acc, el) => acc + getKey<number>(el, key), 0, this.array);
   }
 
-  public Average(key?: keyof LIST) {
+  public Average<K extends keyof Entity>(key?: K) {
     return this.Sum(key) / this.array.length;
   }
 
-  public GroupBy(key: keyof LIST) {
+  public GroupBy(key: keyof Entity) {
     return groupBy(key, this.array);
   }
 
-  public Except(exceptions: LIST[]) {
+  public Except(exceptions: Entity[]) {
     return filter((x) => !contains(x, exceptions), this.array);
   }
 
-  public Intersect(commons: LIST[]) {
+  public Intersect(commons: Entity[]) {
     return filter((x) => contains(x, commons), this.array);
   }
 
-  public OrderBy(key?: keyof LIST, order?: OrderKeys) {
-    let array: LIST[];
-    if (!!key) {
-      array = sort(this.array, key);
-    } else {
-      array = [...this.array].sort();
-    }
+  public OrderBy(key?: keyof Entity, order?: OrderKeys) {
+    let array: Entity[];
+    array = !!key ? sort(this.array, key) : [...this.array].sort();
     this.array = order === "desc" ? reverse(array) : array;
     return this;
   }
 
-  public Includes(object: LIST) {
+  public Includes(object: Entity) {
     return any((x) => equals(x, object), this.array);
   }
 
-  public In(array: LIST[]) {
+  public In(array: Entity[]) {
     const len = array.length;
     for (let index = 0; index < len; index++) {
       const element = array[index];
@@ -157,7 +142,7 @@ export class Linq<LIST> {
     return false;
   }
 
-  public Reduce(fn: (next: LIST, accumulator: LIST) => LIST, firstValue: LIST) {
+  public Reduce<Fn extends (next: Entity, accumulator: Entity) => Entity>(fn: Fn, firstValue: Entity) {
     return reduce(fn, firstValue ?? (this.array[0] as any), this.array);
   }
 
@@ -165,19 +150,16 @@ export class Linq<LIST> {
     return this.array.length === 0;
   }
 
-  public ToMap<K>(key: keyof LIST): Map<K, LIST> {
-    return new Map<K, LIST>(map<any>((item) => [key, item], this.array));
+  public ToMap<K>(key: keyof Entity): Map<K, Entity> {
+    return new Map<K, Entity>(map<any>((item) => [key, item], this.array));
   }
 
-  public Zip(array: LIST[], fn: (first: LIST, second?: LIST) => any) {
+  public Zip(array: Entity[], fn: (first: Entity, second?: Entity) => any) {
     return map((item, index) => fn(item, array[index]), this.array);
   }
 
-  public Count(predicate?: ArrayCallbackAssertion<LIST>) {
-    if (predicate === undefined) {
-      return this.array.length;
-    }
-    return filter(predicate, this.array).length;
+  public Count(predicate?: ArrayCallbackAssertion<Entity>) {
+    return predicate === undefined ? this.array.length : filter(predicate, this.array).length;
   }
 
   public Get(n: number) {
@@ -185,14 +167,18 @@ export class Linq<LIST> {
   }
 
   public Clone() {
-    return new Linq<LIST>(deepClone(this.array));
+    return new Linq<Entity>(deepClone(this.array));
   }
 
-  public ToObject(key: keyof LIST): ArrayAsObj<LIST> {
+  public ToObject(key: keyof Entity): ArrayAsObj<Entity> {
     return dict(this.array, key);
   }
 
-  public Sort(sorter?: SortParameters<LIST>) {
+  public Sort(sorter?: SortParameters<Entity>) {
     return sort(this.array, sorter);
+  }
+
+  public static Range(...args: Parameters<typeof range>) {
+    return range(...args);
   }
 }

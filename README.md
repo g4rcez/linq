@@ -8,7 +8,8 @@ Based on `System.Linq` in C#, but in TS for browser and node (server side);
 
 - The same methods (not all) of `Array.prototype`
 - Typescript out of box
-- Make the massive and repetitive operations for you, like `sort by key`, `order by key`, `sorter for strings/numbers/date`
+- Make the massive and repetitive operations for you,
+  like `sort by key`, `order by key`, `sorter for strings/numbers/date`
 - A set of tools in Fluent Interface to work with arrays
 
 ## Install
@@ -24,9 +25,9 @@ pnpm add linq-arrays
 ## Using
 
 ```typescript
-const array = new Linq ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+const array = new Linq([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 // you can create a instance with Linq.From(array) 
-array.Sum () // 55
+array.Sum() // 55
 /* 
     with .Where, you can use some symbols to make your filter more simple
     - != : compare use !=
@@ -40,21 +41,20 @@ array.Sum () // 55
 	eq: compare use Equals in `src/utils.ts`
 	is: compare use Object.is (JS method)
 */
-array.Where ({symbol: "!==", value: 2}).Sum () // 53
+array.Where({symbol: "!==", value: 2}).Sum() // 53
 // or you can pass you function
-array.Where ((number, index, allItems) => number !== 2) // the same of Array.prototype.filter
-array.ToArray () // return the array after all operations 
+array.Where((number, index, allItems) => number !== 2) // the same of Array.prototype.filter
 /* 
     args accept a method, the same of Array.prototype.map. 
     If empty, just return the array like .ToArray
 */
-array.Select ((x) => x ** 2) // the same of Array.prototype.map
+const result = array.Select((x) => x ** 2) // the same of Array.prototype.map
 ```
 
 ## API
 
 ```typescript
-const array = new Linq ([1, 2, 3, 4, 5, 6, 7, 8, 9])
+const array = new Linq([1, 2, 3, 4, 5, 6, 7, 8, 9])
 ```
 
 - `Reverse()`: use the `Array.prototype.reverse` to reverse array
@@ -88,9 +88,3 @@ const array = new Linq ([1, 2, 3, 4, 5, 6, 7, 8, 9])
 - `Clone()`: deepClone instance array
 - `ToObject(key: keyof Type): ArrayAsObj<Type>`
 - `All(predicate: ArrayCallbackAssertion<Type>)`: The same of `Array.prototype.every`
-
-## ToDo
-
-- Write best Readme
-- Create a page to interactive doc
-- Write unit tests
