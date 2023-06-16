@@ -1,14 +1,10 @@
-import { reduce } from "./reduce";
-import { Grouped } from "./typing";
-
-export const groupBy = <T>(key: keyof T, array: T[]) =>
-  reduce(
-    (g, el) => {
-      const name: keyof T = el[key] as never;
-      g[name] = g[name] || [];
-      g[name].push(el as any);
-      return g;
-    },
-    {} as Grouped<T>,
-    array
-  );
+export const groupBy = <T, K extends keyof T>(key: K, array: T[]) => {
+  const map = new Map<T[K], T[]>();
+  array.forEach((x) => {
+    const k = x[key];
+    const item = map.get(k) || [];
+    item.push(x);
+    map.set(k, item);
+  });
+  return Object.fromEntries(map.entries());
+};
