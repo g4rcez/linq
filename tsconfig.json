@@ -3,15 +3,13 @@
     "lib": [
       "ESNext"
     ],
-    "incremental": true,
     "downlevelIteration": true,
     "declarationMap": true,
-    "declarationDir": "./build",
+    "declarationDir": "./dist",
     "rootDir": "./src",
-    "outDir": "./build",
-    "target": "ESNext",
+    "outDir": "./dist",
+    "target": "es5",
     "declaration": true,
-    "composite": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "alwaysStrict": true,

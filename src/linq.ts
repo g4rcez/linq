@@ -18,17 +18,14 @@ import {
   Maybe,
   OrderKeys,
   SortParameters,
-  Symbols,
+  Symbols
 } from "./methods/typing";
 import { equals, getKey } from "./methods/utils";
 import { where } from "./methods/where";
 import { range } from "./methods/range";
 
-export class Linq<Entity> {
-  private array: Entity[];
-
-  public constructor(array: Entity[] = []) {
-    this.array = deepClone<Entity[]>(array);
+export class Linq<Entity extends unknown> {
+  public constructor(private array: Entity[] = []) {
   }
 
   public Where(args: ArrayCallbackAssertion<Entity> | Maybe<keyof Entity>, symbol?: Symbols, value?: any) {
@@ -82,7 +79,7 @@ export class Linq<Entity> {
   }
 
   public First(predicate?: ArrayCallbackAssertion<Entity>) {
-    return predicate === undefined ? this.array[0] : find(predicate, this.array) || null;
+    return predicate === undefined ? this.array[0] : find(this.array, predicate) || null;
   }
 
   public Last(predicate?: ArrayCallbackAssertion<Entity>) {
@@ -110,15 +107,15 @@ export class Linq<Entity> {
   }
 
   public GroupBy(key: keyof Entity) {
-    return groupBy(key, this.array);
+    return groupBy(this.array, key);
   }
 
   public Except(exceptions: Entity[]) {
-    return filter((x) => !contains(x, exceptions), this.array);
+    return filter(this.array, (x) => !contains(exceptions, x));
   }
 
   public Intersect(commons: Entity[]) {
-    return filter((x) => contains(x, commons), this.array);
+    return filter<Entity>(this.array, (x) => contains(commons, x));
   }
 
   public OrderBy(key?: keyof Entity, order?: OrderKeys) {
@@ -129,7 +126,7 @@ export class Linq<Entity> {
   }
 
   public Includes(object: Entity) {
-    return any((x) => equals(x, object), this.array);
+    return any(this.array, (x) => equals(x, object));
   }
 
   public In(array: Entity[]) {
@@ -151,15 +148,15 @@ export class Linq<Entity> {
   }
 
   public ToMap<K>(key: keyof Entity): Map<K, Entity> {
-    return new Map<K, Entity>(map<any>((item) => [key, item], this.array));
+    return new Map<K, Entity>(map<any>(this.array, (item) => [key, item]));
   }
 
   public Zip(array: Entity[], fn: (first: Entity, second?: Entity) => any) {
-    return map((item, index) => fn(item, array[index]), this.array);
+    return map(this.array, (item, index) => fn(item, array[index]));
   }
 
   public Count(predicate?: ArrayCallbackAssertion<Entity>) {
-    return predicate === undefined ? this.array.length : filter(predicate, this.array).length;
+    return predicate === undefined ? this.array.length : filter(this.array, predicate).length;
   }
 
   public Get(n: number) {

@@ -1,12 +1,16 @@
 import { ArrayCallbackAssertion } from "./typing";
-import { spreadData } from "./utils";
 
-export const find = <T>(callback: ArrayCallbackAssertion<T>, array: T[]) => {
+/*
+  * @param array: the list to find the `element`
+  * @param callback: the function that find the element
+  * @returns undefined or the found element
+ */
+export const find = <T>(array: T[], callback: ArrayCallbackAssertion<T>) => {
   const len = array.length;
   for (let index = 0; index < len; index++) {
     const includes = callback(array[index] as T, index, array);
     if (includes) {
-      return spreadData(array[index]) as T;
+      return (array[index]) as T;
     }
   }
   return undefined;

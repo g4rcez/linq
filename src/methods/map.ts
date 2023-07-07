@@ -1,6 +1,11 @@
 import { ArrayCallback } from "./typing";
 
-export const map = <T>(callback: ArrayCallback<T>, array: T[]) => {
+/*
+  * @param array: the list to transform
+  * @param callback: the function that takes an item and transform to something
+  * @returns the transformed list
+ */
+export const map = <T>(array: T[], callback: ArrayCallback<T>) => {
   const mappedArray = [];
   let index = 0;
   const len = array.length;
