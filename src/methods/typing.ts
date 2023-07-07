@@ -15,7 +15,7 @@ export type Symbols =
   | "alphabetical"
   | "includes"
   | "notIncludes"
-  | "starsWith"
+  | "startsWith"
   | "endsWith"
   | "empty"
   | "notEmpty"

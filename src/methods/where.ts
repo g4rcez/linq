@@ -19,7 +19,7 @@ const symbolMap: SymbolMap<any, any> = {
   ">=": (v, c) => v >= c,
   includes: (v, c) => `${v}`.includes(c),
   notIncludes: (v, c) => !`${v}`.includes(c),
-  starsWith: (v, c) => `${v}`.startsWith(c),
+  startsWith: (v, c) => `${v}`.startsWith(c),
   endsWith: (v, c) => `${v}`.endsWith(c),
   like: (v, c) => new RegExp(`.*${c}.*`, "gi").test(`${v}`),
   alphabetical: (v, c) => v.toString().localeCompare(c.toString()),
