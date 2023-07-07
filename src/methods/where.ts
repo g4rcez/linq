@@ -42,9 +42,7 @@ export function where<T extends unknown>(
   symbol?: Symbols,
   value?: unknown
 ) {
-  if (typeof args === "function") {
-    return array.filter(args);
-  }
+  if (typeof args === "function") return filter(array, args);
   const op = GetOperationFromSymbol(symbol!);
   if (!!args && !!symbol && value !== undefined) return filter(array, (x) => op(x[args], value));
   return filter(array, (x) => op(x, value));
