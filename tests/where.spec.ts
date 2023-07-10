@@ -45,7 +45,7 @@ describe("Where test", () => {
   test("Where X starts with", () => {
     const arr = [{ X: 1 }, { X: 1 }, { X: "test" }, { X: "test" }, { X: "test" }, { X: "test" }, { X: 1 }, { X: 1 }, { X: 2 }];
     const linq = new Linq(arr);
-    const odds = linq.Where("X", "starsWith", "te").Select();
+    const odds = linq.Where("X", "startsWith", "te").Select();
     expect(odds.length).toEqual(4);
   });
 

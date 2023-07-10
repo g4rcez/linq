@@ -10,7 +10,7 @@ import { map } from "./methods/map";
 import { reduce } from "./methods/reduce";
 import { reverse } from "./methods/reverse";
 import { skip } from "./methods/skip";
-import { sort } from "./methods/sort";
+import { multiSort, sort, Sorter } from "./methods/sort";
 import {
   ArrayAsObj,
   ArrayCallback,
@@ -171,8 +171,8 @@ export class Linq<Entity extends unknown> {
     return dict(this.array, key);
   }
 
-  public Sort(sorter?: SortParameters<Entity>) {
-    return sort(this.array, sorter);
+  public Sort(sorter?: SortParameters<Entity> | Sorter<Entity>[]) {
+    return Array.isArray(sorter) ? multiSort<Entity>(this.array, sorter) : sort(this.array, sorter);
   }
 
   public static Range(...args: Parameters<typeof range>) {
