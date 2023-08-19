@@ -7,9 +7,9 @@ test("Should test group-by id", () => {
     { id: 1, name: "b" },
     { id: 1, name: "c" },
     { id: 2, name: "A" },
-    { id: 2, name: "B" },
+    { id: 2, name: "B" }
   ];
-  const groups = groupBy("id", items);
+  const groups = groupBy(items, "id");
   expect(groups["1"].length).toBe(3);
   expect(groups["2"].length).toBe(2);
 });

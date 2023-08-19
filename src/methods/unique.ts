@@ -8,7 +8,7 @@ export const unique = <T>(array: T[], key?: keyof T) => {
   if (Array.isArray(key)) {
     return [...new Set(key)];
   }
-  return filter((el) => {
+  return filter(array, (el) => {
     const duplicate = key ? seen.has(el[key]) : seen.has(key);
     if (!!key) {
       if (!duplicate) {
@@ -16,5 +16,5 @@ export const unique = <T>(array: T[], key?: keyof T) => {
       }
     }
     return !duplicate;
-  }, array);
+  });
 };

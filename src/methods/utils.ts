@@ -1,4 +1,3 @@
-import { deepClone } from "./clone";
 import { ObjectMap } from "./typing";
 
 export const isObject = (a: any): a is Object => typeof a === "object";
@@ -23,16 +22,6 @@ export const equals = (a: any, b: any): boolean => {
   return keys.every((k) => equals(a[k], b[k]));
 };
 
-const primitives = ["bigint", "boolean", "number", "string", "undefined"];
-
-const isPrimitive = (e: unknown) => primitives.includes(typeof e);
-
-export const spreadData = (item: unknown) => {
-  if (isPrimitive(item)) {
-    return item;
-  }
-  return deepClone(item);
-};
 
 export const getKey = <T>(obj: any, key?: any): T => {
   if ((isObject(obj) || Array.isArray(obj)) && !!key) {

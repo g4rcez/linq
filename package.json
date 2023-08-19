@@ -1,22 +1,42 @@
 {
   "name": "linq-arrays",
-  "version": "3.0.0",
+  "version": "3.0.6",
   "description": "Emulate LINQ syntax to work with Arrays in JS",
-  "main": "./build/index.js",
+  "source": "./src/index.ts",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "default": {
+        "type": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js",
+        "require": "./dist/index.js"
+      },
+      "types": {
+        "import": "./dist/index.d.ts",
+        "require": "./dist/index.d.ts",
+        "default": "./dist/index.d.ts"
+      }
+    }
+  },
+  "files": [
+    "./dist"
+  ],
   "scripts": {
+    "build": "tsc",
     "format": "prettier --write './{src,tests}/**/*.ts'",
-    "rm": "rm -rf build",
-    "rm:config": "rm -rf build",
-    "build": "tsc -p tsconfig.build.json && rm -rf tsconfig.build.tsbuildinfo",
-    "compile": "npm-run-all -s rm build rm:config",
-    "test": "vitest run"
+    "test": "vitest run",
+    "watch": "vitest watch",
+    "typedoc": "typedoc --out docs src/index.ts"
   },
   "author": "Allan Garcez <allan.f.garcez@gmail.com> (https://github.com/g4rcez)",
   "license": "MIT",
   "devDependencies": {
-    "npm-run-all": "4.1.5",
     "prettier": "2.8.8",
     "tslib": "2.5.0",
+    "typedoc": "0.24.8",
     "typescript": "5.0.2",
     "vitest": "0.32.0"
   },
