@@ -30,9 +30,7 @@ const symbolMap: SymbolMap<any, any> = {
 };
 
 export const GetOperationFromSymbol = (symbol: Symbols) => {
-  if (symbol in symbolMap) {
-    return symbolMap[symbol];
-  }
+  if (symbol in symbolMap) return symbolMap[symbol]
   throw new Error("Linq - Symbol not found");
 };
 
