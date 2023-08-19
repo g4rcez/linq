@@ -1,3 +1,4 @@
+export type { Symbols, SymbolMap } from "./methods/typing";
 export { all } from "./methods/all";
 export { any } from "./methods/any";
 export { chunk } from "./methods/chunk";
@@ -10,7 +11,6 @@ export { filter } from "./methods/filter";
 export { find } from "./methods/find";
 export { first, last, tail } from "./methods/get";
 export { groupBy } from "./methods/group-by";
-export { Linq as default, Linq } from "./linq";
 export { map } from "./methods/map";
 export { diff, max, min, sum } from "./methods/numbers";
 export { random } from "./methods/random";
@@ -24,4 +24,4 @@ export { sort, sortDate, sortNumber, sortString } from "./methods/sort";
 export { toMap } from "./methods/to-map";
 export { unique } from "./methods/unique";
 export { where } from "./methods/where";
-export type { Symbols, SymbolMap } from "./methods/typing";
+export { Linq as default, Linq } from "./linq";
