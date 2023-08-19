@@ -1,30 +1,40 @@
 {
   "compilerOptions": {
-    "lib": [
-      "ESNext"
-    ],
-    "downlevelIteration": true,
-    "declarationMap": true,
-    "declarationDir": "./dist",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "target": "es5",
+    "allowJs": false,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "allowUmdGlobalAccess": false,
+    "target": "ES2015",
     "declaration": true,
-    "moduleResolution": "node",
+    "declarationMap": true,
+    "importHelpers": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
-    "alwaysStrict": true,
-    "noImplicitAny": true,
-    "noImplicitThis": false,
-    "noImplicitReturns": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "emitDeclarationOnly": true,
+    "declarationDir": "./dist",
     "strictNullChecks": true,
     "strictFunctionTypes": true,
+    "strictBindCallApply": true,
     "strictPropertyInitialization": true,
-    "forceConsistentCasingInFileNames": true
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "downlevelIteration": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ]
   },
-  "files": [
-    "src/index.ts"
-  ],
   "include": [
-    "src/",
+    "src"
   ]
 }

@@ -22,7 +22,6 @@ export const equals = (a: any, b: any): boolean => {
   return keys.every((k) => equals(a[k], b[k]));
 };
 
-
 export const getKey = <T>(obj: any, key?: any): T => {
   if ((isObject(obj) || Array.isArray(obj)) && !!key) {
     return obj[key];

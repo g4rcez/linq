@@ -24,4 +24,4 @@ export { sort, sortDate, sortNumber, sortString } from "./methods/sort";
 export { toMap } from "./methods/to-map";
 export { unique } from "./methods/unique";
 export { where } from "./methods/where";
-export type {Symbols,SymbolMap} from "./methods/typing"
+export type { Symbols, SymbolMap } from "./methods/typing";

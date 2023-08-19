@@ -37,7 +37,7 @@ const createChars = (charA: string, charZ: string, jumps = 1) => {
 export const range = <T extends number | string>(
   firstOrLength: T,
   secondOrSteps?: number | string,
-  jumps: number = 1
+  jumps: number = 1,
 ): T[] => {
   if (secondOrSteps === undefined) {
     const [x, y, jp] = (firstOrLength as string).split("..");

@@ -10,8 +10,11 @@ test("Should test multiple sorter", () => {
     { id: 1, name: "c" },
     { id: 2, name: "a" },
     { id: 2, name: "b" },
-    shouldBeFirst
+    shouldBeFirst,
   ];
-  const groups = multiSort(items, [{ key: "id", type: Order.Asc }, { key: "name", type: Order.Asc }]);
+  const groups = multiSort(items, [
+    { key: "id", type: Order.Asc },
+    { key: "name", type: Order.Asc },
+  ]);
   expect(groups[0]).toBe(shouldBeFirst);
 });

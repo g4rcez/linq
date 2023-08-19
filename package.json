@@ -2,17 +2,18 @@
   "name": "linq-arrays",
   "version": "3.1.0",
   "description": "Emulate LINQ syntax to work with Arrays in JS",
+  "type": "module",
   "source": "./src/index.ts",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "module": "./dist/index.cjs",
   "exports": {
     ".": {
       "default": {
         "type": "./dist/index.d.ts",
-        "import": "./dist/index.js",
+        "import": "./dist/index.cjs",
         "default": "./dist/index.js",
-        "require": "./dist/index.js"
+        "require": "./dist/index.cjs"
       },
       "types": {
         "import": "./dist/index.d.ts",
@@ -25,7 +26,7 @@
     "./dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "vite build; tsc",
     "format": "prettier --write './{src,tests}/**/*.ts'",
     "test": "vitest run",
     "watch": "vitest watch",
@@ -43,5 +44,8 @@
   "volta": {
     "node": "18.12.1",
     "yarn": "1.22.19"
+  },
+  "dependencies": {
+    "vite": "4.4.9"
   }
 }

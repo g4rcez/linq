@@ -24,13 +24,13 @@ const symbolMap: SymbolMap<any, any> = {
   like: (v, c) => new RegExp(`.*${c}.*`, "gi").test(`${v}`),
   alphabetical: (v, c) => v.toString().localeCompare(c.toString()),
   empty: isEmpty,
-  notEmpty: x => !isEmpty(x),
-  in: (v, c) => any(c, x => equals(v, x)),
-  notIn: (v, c) => all(c, x => !equals(v, x))
+  notEmpty: (x) => !isEmpty(x),
+  in: (v, c) => any(c, (x) => equals(v, x)),
+  notIn: (v, c) => all(c, (x) => !equals(v, x)),
 };
 
 export const GetOperationFromSymbol = (symbol: Symbols) => {
-  if (symbol in symbolMap) return symbolMap[symbol]
+  if (symbol in symbolMap) return symbolMap[symbol];
   throw new Error("Linq - Symbol not found");
 };
 
@@ -38,7 +38,7 @@ export function where<T extends unknown>(
   array: T[],
   args?: ArrayCallbackAssertion<T> | Maybe<keyof T>,
   symbol?: Symbols,
-  value?: unknown
+  value?: unknown,
 ) {
   if (typeof args === "function") return filter(array, args);
   const op = GetOperationFromSymbol(symbol!);

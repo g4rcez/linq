@@ -1,6 +1,6 @@
 /*
-  * @param array: the list to filter
-  * @returns the `array` filtered by Boolean function
+ * @param array: the list to filter
+ * @returns the `array` filtered by Boolean function
  */
 export const compact = <T>(array: T[]) => {
   const mappedArray = [];

@@ -1,2 +1,5 @@
-publish.sh
-src
+.idea
+.github
+.vscode
+playground
+.prettierrc.json

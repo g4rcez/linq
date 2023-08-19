@@ -1,7 +1,7 @@
 export type OrderKeys = "desc" | "asc";
 
 export type Symbols =
-  "=="
+  | "=="
   | "==="
   | ">"
   | ">="
@@ -20,13 +20,13 @@ export type Symbols =
   | "empty"
   | "notEmpty"
   | "in"
-  | "notIn"
+  | "notIn";
 
 export type ObjectMap = { [key: string]: any };
 
 export type WhereFunction<T, V> = (value: T, compare: V, index: number, array: T[]) => boolean;
 
-export type SymbolMap<T, V> = { [key in Symbols]: (value: T, compare: V) => boolean; };
+export type SymbolMap<T, V> = { [key in Symbols]: (value: T, compare: V) => boolean };
 
 export type ArrayCallback<T> = (item: T, index: number, array: T[]) => T;
 

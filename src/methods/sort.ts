@@ -77,19 +77,19 @@ export const sort = <S>(array: S[], sorter?: SortParameters<S>) => {
 
 export enum Order {
   Asc = "asc",
-  Desc = "desc"
+  Desc = "desc",
 }
 
-export type Sorter<T> = { key: keyof T; type: Order }
+export type Sorter<T> = { key: keyof T; type: Order };
 
 const createSorter =
   <T>(fields: Sorter<T>[]) =>
-    (a: any, b: any) =>
-      fields.reduce<number>((acc, x) => {
-        const reverse = x.type === "desc" ? -1 : 1;
-        const property = x.key;
-        const p = a[property] > b[property] ? reverse : a[property] < b[property] ? -reverse : 0;
-        return acc !== 0 ? acc : p;
-      }, 0);
+  (a: any, b: any) =>
+    fields.reduce<number>((acc, x) => {
+      const reverse = x.type === "desc" ? -1 : 1;
+      const property = x.key;
+      const p = a[property] > b[property] ? reverse : a[property] < b[property] ? -reverse : 0;
+      return acc !== 0 ? acc : p;
+    }, 0);
 
 export const multiSort = <T>(array: T[], fields: Sorter<T>[]) => array.sort(createSorter(fields));

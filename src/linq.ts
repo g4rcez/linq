@@ -18,15 +18,14 @@ import {
   Maybe,
   OrderKeys,
   SortParameters,
-  Symbols
+  Symbols,
 } from "./methods/typing";
 import { equals, getKey } from "./methods/utils";
 import { where } from "./methods/where";
 import { range } from "./methods/range";
 
 export class Linq<Entity extends unknown> {
-  public constructor(private array: Entity[] = []) {
-  }
+  public constructor(private array: Entity[] = []) {}
 
   public Where(args: ArrayCallbackAssertion<Entity> | Maybe<keyof Entity>, symbol?: Symbols, value?: any) {
     this.array = where(this.array, args, symbol, value);

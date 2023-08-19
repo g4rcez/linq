@@ -1,7 +1,7 @@
 export const reduce = <T, I>(
   callback: (acc: I, current: T, index: number, array: T[]) => unknown,
   initial: I,
-  array: T[]
+  array: T[],
 ) => {
   let accumulator = initial;
   const len = array.length;
