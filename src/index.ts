@@ -24,4 +24,4 @@ export { sort, sortDate, sortNumber, sortString } from "./methods/sort";
 export { toMap } from "./methods/to-map";
 export { unique } from "./methods/unique";
 export { where } from "./methods/where";
-export { Linq as default, Linq } from "./linq";
+export { Linq } from "./linq";
