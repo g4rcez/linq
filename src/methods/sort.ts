@@ -1,4 +1,4 @@
-import { SortParameters } from "./typing";
+import type { SortParameters } from "./typing";
 import { sortBy } from "./utils";
 
 type Key<T> = keyof T | string;

@@ -1,4 +1,4 @@
-import { ArrayCallbackAssertion } from "./typing";
+import type { ArrayCallbackAssertion } from "./typing";
 
 /*
  * @param array: the list to apply `all` logic

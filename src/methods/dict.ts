@@ -1,5 +1,4 @@
-import { reduce } from "./reduce";
-import { ArrayAsObj } from "./typing";
+import type { ArrayAsObj } from "./typing";
 
 /*
  * @param array: the list to convert into a dictionary key:value

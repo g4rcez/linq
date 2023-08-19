@@ -11,21 +11,26 @@ import { reduce } from "./methods/reduce";
 import { reverse } from "./methods/reverse";
 import { skip } from "./methods/skip";
 import { multiSort, sort, Sorter } from "./methods/sort";
-import {
+import type {
   ArrayAsObj,
   ArrayCallback,
   ArrayCallbackAssertion,
   Maybe,
   OrderKeys,
   SortParameters,
-  Symbols,
+  Symbols
 } from "./methods/typing";
 import { equals, getKey } from "./methods/utils";
 import { where } from "./methods/where";
 import { range } from "./methods/range";
 
 export class Linq<Entity extends unknown> {
-  public constructor(private array: Entity[] = []) {}
+  public constructor(private array: Entity[] = []) {
+  }
+
+  public static Range(...args: Parameters<typeof range>) {
+    return range(...args);
+  }
 
   public Where(args: ArrayCallbackAssertion<Entity> | Maybe<keyof Entity>, symbol?: Symbols, value?: any) {
     this.array = where(this.array, args, symbol, value);
@@ -172,9 +177,5 @@ export class Linq<Entity extends unknown> {
 
   public Sort(sorter?: SortParameters<Entity> | Sorter<Entity>[]) {
     return Array.isArray(sorter) ? multiSort<Entity>(this.array, sorter) : sort(this.array, sorter);
-  }
-
-  public static Range(...args: Parameters<typeof range>) {
-    return range(...args);
   }
 }

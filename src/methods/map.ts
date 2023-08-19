@@ -1,4 +1,4 @@
-import { ArrayCallback } from "./typing";
+import type { ArrayCallback } from "./typing";
 
 /*
  * @param array: the list to transform

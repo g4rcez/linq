@@ -1,4 +1,4 @@
-import { ArrayCallbackAssertion } from "./typing";
+import type { ArrayCallbackAssertion } from "./typing";
 
 export const skip = <T>(jumps: number | ArrayCallbackAssertion<T>, array: T[]) => {
   if (typeof jumps === "number") {
