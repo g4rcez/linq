@@ -12,11 +12,6 @@ export default defineConfig({
       fileName: "index",
       formats: ["cjs", "es", "umd"],
     },
-    rollupOptions: {
-      treeshake: true,
-      output: {
-        exports: "auto",
-      },
-    },
+    rollupOptions: { treeshake: true },
   },
 });
