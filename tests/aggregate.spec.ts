@@ -1,5 +1,4 @@
 import { test, expect } from "vitest";
-
 import Linq from "../src";
 
 const reduceSum = (acc: number, el: number) => acc + el;

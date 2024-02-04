@@ -1,5 +1,5 @@
 export const reverse = <T>(a: T[]) => {
-  const array = [...a];
+  const array = Array.from(a.values());
   let left = null;
   let right = null;
   let length = array.length;

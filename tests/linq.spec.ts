@@ -1,4 +1,4 @@
-import Linq from "../src";
+import Linq, { reverse } from "../src";
 import { it, expect, describe } from "vitest";
 
 const test = it.concurrent;
@@ -21,18 +21,24 @@ describe("General operations", () => {
   });
 
   test("Reverse Array", () => {
-    const arr = [
-      { name: "Foo", surname: "Bar" },
-      { name: "Fu", surname: "Bá" },
-      { name: "Chuck", surname: "Norris" },
-      { name: "Bruce", surname: "Lee" },
-      { name: "Bruce", surname: "Wayne" },
-      { name: "Brucer", surname: "Nothing" },
-      { name: "Peter", surname: "Parker" },
-    ];
-    const arrays = new Linq(arr);
-    arr.reverse();
-    expect(arr).toEqual(arrays.Reverse().Select());
+    const arrays = new Linq([
+      { name: "bruce", surname: "lee" },
+      { name: "bruce", surname: "wayne" },
+      { name: "brucer", surname: "nothing" },
+      { name: "chuck", surname: "norris" },
+      { name: "foo", surname: "bar" },
+      { name: "fu", surname: "bá" },
+      { name: "peter", surname: "parker" },
+    ]);
+    expect(arrays.Reverse().Select()).toStrictEqual([
+      { name: "peter", surname: "parker" },
+      { name: "fu", surname: "bá" },
+      { name: "foo", surname: "bar" },
+      { name: "chuck", surname: "norris" },
+      { name: "brucer", surname: "nothing" },
+      { name: "bruce", surname: "wayne" },
+      { name: "bruce", surname: "lee" },
+    ]);
   });
 
   test("Range", () => {

@@ -1,3 +1,4 @@
+import { Linq } from "./linq";
 export type { Symbols, SymbolMap } from "./methods/typing";
 export { all } from "./methods/all";
 export { any } from "./methods/any";
@@ -25,3 +26,5 @@ export { toMap } from "./methods/to-map";
 export { unique } from "./methods/unique";
 export { where } from "./methods/where";
 export { Linq } from "./linq";
+
+export default Linq;

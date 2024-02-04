@@ -6,6 +6,10 @@
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "module": "./dist/index.cjs",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/g4rcez/linq"
+  },
   "exports": {
     ".": {
       "types": {
@@ -34,17 +38,15 @@
   "author": "Allan Garcez <allan.f.garcez@gmail.com> (https://github.com/g4rcez)",
   "license": "MIT",
   "devDependencies": {
-    "prettier": "3.0.2",
+    "prettier": "3.2.4",
     "tslib": "2.6.2",
-    "typedoc": "0.24.8",
-    "typescript": "5.0.2",
-    "vitest": "0.34.2"
+    "typedoc": "0.25.7",
+    "typescript": "5.3.3",
+    "vite": "5.0.12",
+    "vitest": "1.2.2"
   },
   "volta": {
     "node": "18.12.1",
     "yarn": "1.22.19"
-  },
-  "dependencies": {
-    "vite": "4.4.9"
   }
 }

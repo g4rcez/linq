@@ -10,8 +10,13 @@ export default defineConfig({
       name: "linq",
       entry: "./src/index.ts",
       fileName: "index",
-      formats: ["cjs", "es", "umd"]
+      formats: ["cjs", "es", "umd"],
     },
-    rollupOptions: { treeshake: true, }
-  }
+    rollupOptions: {
+      treeshake: true,
+      output: {
+        exports: "auto",
+      },
+    },
+  },
 });

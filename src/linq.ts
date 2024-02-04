@@ -5,7 +5,7 @@ import { dict } from "./methods/dict";
 import { distinct } from "./methods/distinct";
 import { filter } from "./methods/filter";
 import { find } from "./methods/find";
-import { groupBy } from "./methods/group-by";
+import { groupBy, groupWith } from "./methods/group-by";
 import { map } from "./methods/map";
 import { reduce } from "./methods/reduce";
 import { reverse } from "./methods/reverse";
@@ -100,18 +100,22 @@ export class Linq<Entity extends unknown> {
     return undefined;
   }
 
-  public Sum<K extends keyof Entity>(key?: K) {
+  public Sum<K extends keyof Entity>(key?: K): number {
     return key === undefined
       ? reduce((acc, el) => (acc as number) + (el as unknown as number), 0, this.array)
       : reduce((acc, el) => acc + getKey<number>(el, key), 0, this.array);
   }
 
-  public Average<K extends keyof Entity>(key?: K) {
+  public Average<K extends keyof Entity>(key?: K): number {
     return this.Sum(key) / this.array.length;
   }
 
   public GroupBy(key: keyof Entity) {
     return groupBy(this.array, key);
+  }
+
+  public GroupWith(func: (t: Entity) => any) {
+    return groupWith(this.array, func);
   }
 
   public Except(exceptions: Entity[]) {
@@ -124,7 +128,7 @@ export class Linq<Entity extends unknown> {
 
   public OrderBy(key?: keyof Entity, order?: OrderKeys) {
     let array: Entity[];
-    array = !!key ? sort(this.array, key) : [...this.array].sort();
+    array = !!key ? sort(this.array, key) : this.array.toSorted();
     this.array = order === "desc" ? reverse(array) : array;
     return this;
   }

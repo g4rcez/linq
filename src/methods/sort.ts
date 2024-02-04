@@ -71,8 +71,8 @@ export const sortDate = <T extends {}>(key?: Key<T>, reverse = false) => {
 export const sort = <S>(array: S[], sorter?: SortParameters<S>) => {
   const shallowCopy = [...array];
   if (sorter === undefined) return shallowCopy.sort();
-  if (typeof sorter === "function") return shallowCopy.sort(sorter);
-  return shallowCopy.sort(sortBy(sorter as any) as never);
+  if (typeof sorter === "function") return shallowCopy.toSorted(sorter);
+  return shallowCopy.toSorted(sortBy(sorter as any) as never);
 };
 
 export enum Order {
