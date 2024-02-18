@@ -1,15 +1,27 @@
 {
   "name": "linq-arrays",
-  "version": "3.2.1",
+  "version": "3.2.3",
   "description": "Emulate LINQ syntax to work with Arrays in JS",
   "source": "./src/index.ts",
   "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
-  "module": "./dist/index.cjs",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.js",
+  "files": [
+    "./dist"
+  ],
   "repository": {
     "type": "github",
     "url": "https://github.com/g4rcez/linq"
   },
+  "keywords": [
+    "linq",
+    "arrays",
+    "array",
+    "list",
+    "toolbelt",
+    "typescript",
+    "performance"
+  ],
   "exports": {
     ".": {
       "types": {
@@ -19,17 +31,14 @@
       },
       "default": {
         "type": "./dist/index.d.ts",
-        "import": "./dist/index.cjs",
-        "default": "./dist/index.js",
-        "require": "./dist/index.cjs"
+        "import": "./dist/index.mjs",
+        "default": "./dist/index.mjs",
+        "require": "./dist/index.js"
       }
     }
   },
-  "files": [
-    "./dist"
-  ],
   "scripts": {
-    "build": "vite build; tsc",
+    "build": "tsup",
     "format": "prettier --write './{src,tests}/**/*.ts'",
     "test": "vitest run",
     "watch": "vitest watch",
@@ -40,9 +49,9 @@
   "devDependencies": {
     "prettier": "3.2.4",
     "tslib": "2.6.2",
+    "tsup": "8.0.2",
     "typedoc": "0.25.7",
     "typescript": "5.3.3",
-    "vite": "5.0.12",
     "vitest": "1.2.2"
   },
   "volta": {
