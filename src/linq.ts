@@ -18,15 +18,15 @@ import type {
   Maybe,
   OrderKeys,
   SortParameters,
-  Symbols
+  Symbols,
 } from "./methods/typing";
 import { equals, getKey } from "./methods/utils";
 import { where } from "./methods/where";
 import { range } from "./methods/range";
+import { unique } from "./methods/unique";
 
 export class Linq<Entity extends unknown> {
-  public constructor(private array: Entity[] = []) {
-  }
+  public constructor(private array: Entity[] = []) {}
 
   public static Range(...args: Parameters<typeof range>) {
     return range(...args);
@@ -181,5 +181,9 @@ export class Linq<Entity extends unknown> {
 
   public Sort(sorter?: SortParameters<Entity> | Sorter<Entity>[]) {
     return Array.isArray(sorter) ? multiSort<Entity>(this.array, sorter) : sort(this.array, sorter);
+  }
+
+  public Unique(k?: keyof Entity) {
+    return unique(this.array, k);
   }
 }
