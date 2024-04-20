@@ -114,7 +114,7 @@ export class Linq<Entity extends unknown> {
     return groupBy(this.array, key);
   }
 
-  public GroupWith(func: (t: Entity) => any) {
+  public GroupWith<T extends (t: Entity) => any>(func: T) {
     return groupWith(this.array, func);
   }
 

@@ -2,7 +2,7 @@
 
 `The name LINQ is already used ::sad::`
 
-Based on `System.Linq` in C#, but in TS for browser and node (server side);
+Based on `System.Linq` in C#, but in TS for browser and Node.js (server side);
 
 ## Features
 
