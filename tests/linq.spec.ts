@@ -1,5 +1,5 @@
-import Linq, { reverse } from "../src";
-import { it, expect, describe } from "vitest";
+import { describe, expect, it } from "vitest";
+import Linq from "../src";
 
 const test = it.concurrent;
 
@@ -28,7 +28,7 @@ describe("General operations", () => {
       { name: "chuck", surname: "norris" },
       { name: "foo", surname: "bar" },
       { name: "fu", surname: "bá" },
-      { name: "peter", surname: "parker" },
+      { name: "peter", surname: "parker" }
     ]);
     expect(arrays.Reverse().Select()).toStrictEqual([
       { name: "peter", surname: "parker" },
@@ -37,7 +37,7 @@ describe("General operations", () => {
       { name: "chuck", surname: "norris" },
       { name: "brucer", surname: "nothing" },
       { name: "bruce", surname: "wayne" },
-      { name: "bruce", surname: "lee" },
+      { name: "bruce", surname: "lee" }
     ]);
   });
 
@@ -53,12 +53,34 @@ describe("General operations", () => {
       { name: "Bruce", surname: "Lee" },
       { name: "Bruce", surname: "Wayne" },
       { name: "Brucer", surname: "Nothing" },
-      { name: "Peter", surname: "Parker" },
+      { name: "Peter", surname: "Parker" }
     ]);
     expect([
       { name: "Bruce", surname: "Lee" },
       { name: "Bruce", surname: "Wayne" },
-      { name: "Brucer", surname: "Nothing" },
+      { name: "Brucer", surname: "Nothing" }
     ]).toEqual(arrays.Where("name", "like", "Bruce").Select());
+  });
+
+  test("All like", () => {
+    const arrays = new Linq([
+      { name: "Bruce", surname: "Lee" },
+      { name: "Bruce", surname: "Wayne" },
+      { name: "Brucer", surname: "Nothing" }
+    ]).All("name", "includes", "Bruce");
+    expect(arrays).toBe(true);
+  });
+
+  test("Some like", () => {
+    const arrays = new Linq([
+      { name: "Foo", surname: "Bar" },
+      { name: "Fu", surname: "Bá" },
+      { name: "Chuck", surname: "Norris" },
+      { name: "Bruce", surname: "Lee" },
+      { name: "Bruce", surname: "Wayne" },
+      { name: "Brucer", surname: "Nothing" },
+      { name: "Peter", surname: "Parker" }
+    ]).Some("name", "includes", "Bruce");
+    expect(arrays).toBe(true);
   });
 });

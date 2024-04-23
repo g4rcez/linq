@@ -1,47 +1,24 @@
+import { GetOperationFromSymbol } from "../symbols";
 import { filter } from "./filter";
-import { ArrayCallbackAssertion, Maybe, SymbolMap, Symbols } from "./typing";
-import { equals } from "./utils";
-import { any } from "./any";
-import { all } from "./all";
+import { ArrayCallbackAssertion, Maybe, Symbols } from "./typing";
 
-const isEmpty = (v: any) => v === undefined || v === null || v?.length === 0 || v === "";
-
-const symbolMap: SymbolMap<any, any> = {
-  eq: equals,
-  is: Object.is,
-  "!=": (v, c) => v != c,
-  "!==": (v, c) => v !== c,
-  "<": (v, c) => v < c,
-  "<=": (v, c) => v <= c,
-  "==": (v, c) => v == c,
-  "===": (v, c) => v === c,
-  ">": (v, c) => v > c,
-  ">=": (v, c) => v >= c,
-  includes: (v, c) => `${v}`.includes(c),
-  notIncludes: (v, c) => !`${v}`.includes(c),
-  startsWith: (v, c) => `${v}`.startsWith(c),
-  endsWith: (v, c) => `${v}`.endsWith(c),
-  like: (v, c) => new RegExp(`.*${c}.*`, "gi").test(`${v}`),
-  alphabetical: (v, c) => v.toString().localeCompare(c.toString()),
-  empty: isEmpty,
-  notEmpty: (x) => !isEmpty(x),
-  in: (v, c) => any(c, (x) => equals(v, x)),
-  notIn: (v, c) => all(c, (x) => !equals(v, x)),
+export const whereSymbol = <Input, Output>(
+  func: <V>(array: Input[], callback: ArrayCallbackAssertion<Input>) => Output,
+  array: Input[],
+  args?: ArrayCallbackAssertion<Input> | Maybe<keyof Input>,
+  symbol?: Symbols,
+  value?: unknown
+) => {
+  if (typeof args === "function") return func(array, args);
+  const op = GetOperationFromSymbol(symbol!);
+  if (!!args && !!symbol && value !== undefined) return func(array, (x) => op(x[args], value));
+  return func(array, (x) => op(x, value));
 };
 
-export const GetOperationFromSymbol = (symbol: Symbols) => {
-  if (symbol in symbolMap) return symbolMap[symbol];
-  throw new Error("Linq - Symbol not found");
-};
 
-export function where<T extends unknown>(
+export const where = <T extends unknown>(
   array: T[],
   args?: ArrayCallbackAssertion<T> | Maybe<keyof T>,
   symbol?: Symbols,
-  value?: unknown,
-) {
-  if (typeof args === "function") return filter(array, args);
-  const op = GetOperationFromSymbol(symbol!);
-  if (!!args && !!symbol && value !== undefined) return filter(array, (x) => op(x[args], value));
-  return filter(array, (x) => op(x, value));
-}
+  value?: unknown
+) => whereSymbol<T, T[]>(filter, array, args, symbol, value);

@@ -1,4 +1,5 @@
-import { any } from "./methods/any";
+import { allLikeWhere } from "./methods/all";
+import { any, anyLikeWhere } from "./methods/any";
 import { deepClone } from "./methods/clone";
 import { contains } from "./methods/contains";
 import { dict } from "./methods/dict";
@@ -7,34 +8,39 @@ import { filter } from "./methods/filter";
 import { find } from "./methods/find";
 import { groupBy, groupWith } from "./methods/group-by";
 import { map } from "./methods/map";
+import { range } from "./methods/range";
 import { reduce } from "./methods/reduce";
 import { reverse } from "./methods/reverse";
-import { skip } from "./methods/skip";
+import { skipLikeWhere } from "./methods/skip";
 import { multiSort, sort, Sorter } from "./methods/sort";
-import type {
-  ArrayAsObj,
-  ArrayCallback,
-  ArrayCallbackAssertion,
-  Maybe,
-  OrderKeys,
-  SortParameters,
-  Symbols,
-} from "./methods/typing";
+import type { ArrayAsObj, ArrayCallback, ArrayCallbackAssertion, Maybe, OrderKeys, SortParameters, Symbols } from "./methods/typing";
+import { unique } from "./methods/unique";
 import { equals, getKey } from "./methods/utils";
 import { where } from "./methods/where";
-import { range } from "./methods/range";
-import { unique } from "./methods/unique";
 
 export class Linq<Entity extends unknown> {
-  public constructor(private array: Entity[] = []) {}
+  public constructor(private array: Entity[] = []) {
+  }
 
   public static Range(...args: Parameters<typeof range>) {
     return range(...args);
   }
 
+  public static New<T>(array: T[]) {
+    return new Linq<T>(array);
+  }
+
   public Where(args: ArrayCallbackAssertion<Entity> | Maybe<keyof Entity>, symbol?: Symbols, value?: any) {
     this.array = where(this.array, args, symbol, value);
     return this;
+  }
+
+  public Some(args: ArrayCallbackAssertion<Entity> | Maybe<keyof Entity>, symbol?: Symbols, value?: any) {
+    return anyLikeWhere(this.array, args, symbol, value);
+  }
+
+  public All(args: ArrayCallbackAssertion<Entity> | Maybe<keyof Entity>, symbol?: Symbols, value?: any) {
+    return allLikeWhere(this.array, args, symbol, value);
   }
 
   public Reverse() {
@@ -53,7 +59,7 @@ export class Linq<Entity extends unknown> {
   }
 
   public Select(transform?: ArrayCallback<Entity>) {
-    return transform !== undefined ? this.array.map(transform) : this.array;
+    return transform === undefined ? this.array : this.array.map(transform);
   }
 
   public Take(init: number, end?: number) {
@@ -73,8 +79,10 @@ export class Linq<Entity extends unknown> {
     return this.Skip(1);
   }
 
-  public Skip(jumps: number | ArrayCallbackAssertion<Entity>) {
-    return skip(jumps, this.array);
+
+  public Skip(args: ArrayCallbackAssertion<Entity> | number, symbol?: Symbols, value?: any) {
+    this.array = skipLikeWhere(this.array, args, symbol, value);
+    return this;
   }
 
   public Distinct() {

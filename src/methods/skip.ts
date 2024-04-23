@@ -1,6 +1,7 @@
-import type { ArrayCallbackAssertion } from "./typing";
+import { ArrayCallbackAssertion, Symbols } from "./typing";
+import { whereSymbol } from "./where";
 
-export const skip = <T>(jumps: number | ArrayCallbackAssertion<T>, array: T[]) => {
+export const skip = <T>(array: T[], jumps: ArrayCallbackAssertion<T> | number) => {
   if (typeof jumps === "number") {
     return array.slice(jumps);
   }
@@ -14,3 +15,10 @@ export const skip = <T>(jumps: number | ArrayCallbackAssertion<T>, array: T[]) =
   }
   return array.slice(0);
 };
+
+export const skipLikeWhere = <T extends unknown>(
+  array: T[],
+  args: ArrayCallbackAssertion<T> | number,
+  symbol?: Symbols,
+  value?: unknown
+) => whereSymbol<T, T[]>(skip, array, args as any, symbol, value);

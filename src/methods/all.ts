@@ -1,4 +1,5 @@
-import type { ArrayCallbackAssertion } from "./typing";
+import { ArrayCallbackAssertion, Maybe, Symbols } from "./typing";
+import { whereSymbol } from "./where";
 
 /*
  * @param array: the list to apply `all` logic
@@ -14,3 +15,10 @@ export const all = <T>(array: T[], callback: ArrayCallbackAssertion<T>) => {
   }
   return true;
 };
+
+export const allLikeWhere = <T extends unknown>(
+  array: T[],
+  args?: ArrayCallbackAssertion<T> | Maybe<keyof T>,
+  symbol?: Symbols,
+  value?: unknown
+) => whereSymbol<T, boolean>(all, array, args, symbol, value);
