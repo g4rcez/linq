@@ -25,6 +25,6 @@ export { sort, sortDate, sortNumber, sortString } from "./methods/sort";
 export { toMap } from "./methods/to-map";
 export { unique } from "./methods/unique";
 export { where } from "./methods/where";
-export { Linq } from "./linq";
-
+export { Grouping, Linq, OrderedLinq } from "./linq";
+export type { Comparer, EqualityComparer, IGrouping, KeySelector, Predicate, Selector } from "./linq";
 export default Linq;

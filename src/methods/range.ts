@@ -7,16 +7,15 @@ const getInSequence = (a: string, b: string): [number, number] => {
 };
 
 const individualChars = (charA: string, charZ: string, jumps = 1) => {
-  const a = [];
-  let i = charA.charCodeAt(0);
-  const j = charZ.charCodeAt(0);
-  for (; i <= j; i += jumps) {
-    a.push(String.fromCharCode(i));
+  const numeric = isNumber(charA) && isNumber(charZ);
+  const values: (number | string)[] = [];
+  let code = charA.charCodeAt(0);
+  const end = charZ.charCodeAt(0);
+  for (; code <= end; code += jumps) {
+    const character = String.fromCharCode(code);
+    values.push(numeric ? Number.parseInt(character, 10) : character);
   }
-  if (isNumber(charA) && isNumber(charZ)) {
-    return a.map((x) => Number.parseInt(x));
-  }
-  return a;
+  return values;
 };
 
 const createChars = (charA: string, charZ: string, jumps = 1) => {

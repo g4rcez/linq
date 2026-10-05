@@ -34,6 +34,6 @@ export type ArrayCallbackAssertion<T> = (item: T, index: number, array: T[]) => 
 
 export type Maybe<T> = T | null | undefined;
 
-export type ArrayAsObj<T> = { [key in keyof T]: T };
+export type ArrayAsObj<T> = Record<string, T>;
 
 export type SortParameters<T> = ((a: T, b: T) => number) | undefined | keyof T;
