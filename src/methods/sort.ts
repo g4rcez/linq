@@ -71,8 +71,8 @@ export const sortDate = <T extends {}>(key?: Key<T>, reverse = false) => {
 export const sort = <S>(array: S[], sorter?: SortParameters<S>) => {
   const shallowCopy = [...array];
   if (sorter === undefined) return shallowCopy.sort();
-  if (typeof sorter === "function") return shallowCopy.toSorted(sorter);
-  return shallowCopy.toSorted(sortBy(sorter as any) as never);
+  if (typeof sorter === "function") return shallowCopy.sort(sorter);
+  return shallowCopy.sort(sortBy(sorter as any) as never);
 };
 
 export enum Order {
@@ -84,12 +84,14 @@ export type Sorter<T> = { key: keyof T; type: Order };
 
 const createSorter =
   <T>(fields: Sorter<T>[]) =>
-  (a: any, b: any) =>
-    fields.reduce<number>((acc, x) => {
-      const reverse = x.type === "desc" ? -1 : 1;
-      const property = x.key;
-      const p = a[property] > b[property] ? reverse : a[property] < b[property] ? -reverse : 0;
-      return acc !== 0 ? acc : p;
-    }, 0);
+  (a: any, b: any) => {
+    for (const field of fields) {
+      const reverse = field.type === "desc" ? -1 : 1;
+      const property = field.key;
+      const comparison = a[property] > b[property] ? reverse : a[property] < b[property] ? -reverse : 0;
+      if (comparison !== 0) return comparison;
+    }
+    return 0;
+  };
 
 export const multiSort = <T>(array: T[], fields: Sorter<T>[]) => array.sort(createSorter(fields));

@@ -3,84 +3,43 @@ import Linq from "../src";
 
 const test = it.concurrent;
 
-const reduceSum = (acc: number, el: number) => acc + el;
-
-describe("General operations", () => {
-  test("Get sum", () => {
-    const arr = [0, 1, 2, 2, 3, 4, 5, 6, 7];
-    const arrays = new Linq(arr);
-    const sum = arr.reduce(reduceSum, 0);
-    expect(sum).toBe(arrays.Sum());
+describe("LINQ to Objects", () => {
+  test("aggregates a sequence in one pass", () => {
+    const numbers = new Linq([0, 1, 2, 2, 3, 4, 5, 6, 7]);
+    expect(numbers.Sum()).toBe(30);
+    expect(numbers.Where((number) => number === 2).Sum()).toBe(4);
   });
 
-  test("Sum only 2", () => {
-    const arr = [0, 1, 2, 2, 3, 4, 5, 6, 7];
-    const arrays = new Linq(arr);
-    const filter = arr.filter((x) => x === 2).reduce(reduceSum, 0);
-    expect(filter).toBe(arrays.Where(null, "===", 2).Sum());
+  test("reverses without mutating the source", () => {
+    const source = [1, 2, 3, 4];
+    expect(new Linq(source).Reverse().ToArray()).toEqual([4, 3, 2, 1]);
+    expect(source).toEqual([1, 2, 3, 4]);
   });
 
-  test("Reverse Array", () => {
-    const arrays = new Linq([
-      { name: "bruce", surname: "lee" },
-      { name: "bruce", surname: "wayne" },
-      { name: "brucer", surname: "nothing" },
-      { name: "chuck", surname: "norris" },
-      { name: "foo", surname: "bar" },
-      { name: "fu", surname: "bá" },
-      { name: "peter", surname: "parker" }
-    ]);
-    expect(arrays.Reverse().Select()).toStrictEqual([
-      { name: "peter", surname: "parker" },
-      { name: "fu", surname: "bá" },
-      { name: "foo", surname: "bar" },
-      { name: "chuck", surname: "norris" },
-      { name: "brucer", surname: "nothing" },
-      { name: "bruce", surname: "wayne" },
-      { name: "bruce", surname: "lee" }
+  test("creates an Enumerable.Range-compatible sequence", () => {
+    expect(Linq.Range(18, 23).ToArray()).toEqual([
+      18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
     ]);
   });
 
-  test("Range", () => {
-    expect(Linq.Range("18..40").length).toEqual(23);
-  });
-
-  test("Where with like", () => {
-    const arrays = new Linq([
+  test("filters and projects lazily with method syntax", () => {
+    const people = new Linq([
       { name: "Foo", surname: "Bar" },
       { name: "Fu", surname: "Bá" },
       { name: "Chuck", surname: "Norris" },
       { name: "Bruce", surname: "Lee" },
       { name: "Bruce", surname: "Wayne" },
       { name: "Brucer", surname: "Nothing" },
-      { name: "Peter", surname: "Parker" }
+      { name: "Peter", surname: "Parker" },
     ]);
-    expect([
-      { name: "Bruce", surname: "Lee" },
-      { name: "Bruce", surname: "Wayne" },
-      { name: "Brucer", surname: "Nothing" }
-    ]).toEqual(arrays.Where("name", "like", "Bruce").Select());
-  });
 
-  test("All like", () => {
-    const arrays = new Linq([
-      { name: "Bruce", surname: "Lee" },
-      { name: "Bruce", surname: "Wayne" },
-      { name: "Brucer", surname: "Nothing" }
-    ]).All("name", "includes", "Bruce");
-    expect(arrays).toBe(true);
-  });
-
-  test("Some like", () => {
-    const arrays = new Linq([
-      { name: "Foo", surname: "Bar" },
-      { name: "Fu", surname: "Bá" },
-      { name: "Chuck", surname: "Norris" },
-      { name: "Bruce", surname: "Lee" },
-      { name: "Bruce", surname: "Wayne" },
-      { name: "Brucer", surname: "Nothing" },
-      { name: "Peter", surname: "Parker" }
-    ]).Some("name", "includes", "Bruce");
-    expect(arrays).toBe(true);
+    expect(
+      people
+        .Where((person) => person.name.startsWith("Bruce"))
+        .Select((person) => person.name)
+        .ToArray(),
+    ).toEqual(["Bruce", "Bruce", "Brucer"]);
+    expect(people.All((person) => person.name.includes("B"))).toBe(false);
+    expect(people.Any((person) => person.name === "Peter")).toBe(true);
   });
 });

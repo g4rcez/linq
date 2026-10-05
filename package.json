@@ -1,7 +1,7 @@
 {
   "name": "linq-arrays",
   "version": "3.2.4",
-  "description": "Emulate LINQ syntax to work with Arrays in JS",
+  "description": "Deferred LINQ-to-Objects query operators for JavaScript iterables",
   "source": "./src/index.ts",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.mjs",
